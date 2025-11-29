@@ -144,8 +144,31 @@
             </div>
         </div>
 
-        <div id="plan-output" class="hidden space-y-8 pb-12">
+        <div id="plan-output" class="hidden space-y-8 pb-6">
             <!-- JS render -->
+        </div>
+
+        <!-- 新增：行程調整對話欄 -->
+        <div id="chat-panel" class="hidden mt-4">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 md:p-6 flex flex-col h-72">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="messages-square" class="w-5 h-5 text-indigo-500"></i>
+                        行程調整對話
+                    </h3>
+                    <span class="text-xs text-gray-400">在這裡記錄要調整的重點</span>
+                </div>
+                <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 text-sm text-gray-700 bg-gray-50 rounded-2xl p-3">
+                    <!-- 對話訊息 -->
+                </div>
+                <form id="chat-form" class="mt-3 flex gap-2">
+                    <input id="chat-input" type="text" class="flex-1 rounded-2xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50" placeholder="例如：第 2 天下午想改成逛 outlet..." />
+                    <button type="submit" class="px-4 py-2 text-sm font-bold rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 flex items-center gap-1">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        送出
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -166,7 +189,7 @@
     });
 
     // ========= 設定 =========
-    const apiKey = "AIzaSyDpFVyY4VHWwVJ8NgzWp0mtcHogLEjh9_s"; // 請換成你自己的 key 或留空測試 MOCK
+    const apiKey = ""; // 留空代表用 MOCK DEMO
     const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
 
@@ -225,6 +248,11 @@
     const modalBackdrop = document.getElementById('modal-backdrop');
     const modalContentContainer = document.getElementById('modal-content-container');
 
+    const chatPanel = document.getElementById('chat-panel');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+
     // ========= 狀態 =========
     let currentPlan = null;
     let isGenerating = false;
@@ -246,6 +274,20 @@
 
     const iconHtml = (iconName, classes = 'w-4 h-4') => {
         return `<i data-lucide="${iconName}" class="${classes}"></i>`;
+    };
+
+    const appendChatMessage = (sender, text) => {
+        if (!chatMessages) return;
+        const wrapper = document.createElement('div');
+        const isUser = sender === 'user';
+        wrapper.className = 'flex ' + (isUser ? 'justify-end' : 'justify-start');
+        wrapper.innerHTML = `
+            <div class="max-w-[80%] rounded-2xl px-3 py-2 text-xs md:text-sm ${isUser ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-200 text-gray-800'}">
+                ${escapeHtml(text)}
+            </div>
+        `;
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
     const getTagHtml = (type) => {
@@ -302,9 +344,15 @@
                     <div class="relative pl-10">
                         <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm z-10"></div>
                         <div class="pb-10">
-                            <div class="flex flex-wrap items-center gap-2 mb-2">
-                                <span class="text-sm font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded">${escapeHtml(activity.time || '')}</span>
-                                ${getTagHtml(activity.type || '其他')}
+                            <div class="flex justify-between items-start mb-2 gap-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-sm font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded">${escapeHtml(activity.time || '')}</span>
+                                    ${getTagHtml(activity.type || '其他')}
+                                </div>
+                                <label class="inline-flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
+                                    <input type="checkbox" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 js-activity-checkbox" data-day="${dayPlan.day}">
+                                    <span>調整</span>
+                                </label>
                             </div>
                             <h4 class="text-lg font-bold text-gray-800 mb-2">${safeTitle}</h4>
                             <p class="text-gray-600 text-sm mb-3 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100 inline-block w-full">${escapeHtml(activity.description || '')}</p>
@@ -324,12 +372,20 @@
 
             return `
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <span class="bg-indigo-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm">${dayPlan.day}</span>
-                            第 ${dayPlan.day} 天
-                        </h3>
-                        <div class="text-sm font-medium text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">${escapeHtml(dayPlan.date || `Day ${dayPlan.day}`)}</div>
+                    <div class="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-100">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm">${dayPlan.day}</span>
+                                <h3 class="text-xl font-bold text-gray-800">第 ${dayPlan.day} 天</h3>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-sm font-medium text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">${escapeHtml(dayPlan.date || `Day ${dayPlan.day}`)}</div>
+                                <label class="inline-flex items-center gap-1 text-xs text-gray-500 cursor-pointer">
+                                    <input type="checkbox" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 js-day-select-all" data-day="${dayPlan.day}">
+                                    <span>選取當日全部行程</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-6 md:p-8">
                         <div class="relative border-l-2 border-indigo-100 ml-3 md:ml-4 space-y-10 pb-2">
@@ -339,6 +395,40 @@
                 </div>
             `;
         }).join('');
+    };
+
+    const setupSelectionHandlers = () => {
+        const dayCheckboxes = planOutput.querySelectorAll('.js-day-select-all');
+        const activityCheckboxes = planOutput.querySelectorAll('.js-activity-checkbox');
+
+        const updateDayCheckboxState = (day) => {
+            const dayCb = planOutput.querySelector(`.js-day-select-all[data-day="${day}"]`);
+            if (!dayCb) return;
+            const activities = planOutput.querySelectorAll(`.js-activity-checkbox[data-day="${day}"]`);
+            if (!activities.length) return;
+            const allChecked = Array.from(activities).every(cb => cb.checked);
+            const someChecked = Array.from(activities).some(cb => cb.checked);
+            dayCb.checked = allChecked;
+            dayCb.indeterminate = !allChecked && someChecked;
+        };
+
+        dayCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const day = cb.dataset.day;
+                const activities = planOutput.querySelectorAll(`.js-activity-checkbox[data-day="${day}"]`);
+                activities.forEach(actCb => {
+                    actCb.checked = cb.checked;
+                });
+                cb.indeterminate = false;
+            });
+        });
+
+        activityCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const day = cb.dataset.day;
+                updateDayCheckboxState(day);
+            });
+        });
     };
 
     const renderPlan = (plan) => {
@@ -384,13 +474,13 @@
         if (window.lucide) {
             window.lucide.createIcons();
         }
-        // 按鈕事件（行李清單）
+        // 行李清單按鈕
         planOutput.querySelectorAll('.js-packing-list-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 showPackingList();
             });
         });
-        // 按鈕事件（tips）
+        // tips 按鈕
         planOutput.querySelectorAll('.js-tips-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const title = btn.dataset.title || '';
@@ -398,87 +488,17 @@
                 showTips(title, location);
             });
         });
+
+        // 勾选逻辑
+        setupSelectionHandlers();
+
         planOutput.classList.remove('hidden');
-    };
-
-    // ========= API =========
-    const exponentialBackoffFetch = async (url, options, maxRetries = 5) => {
-        let lastError = null;
-        for (let i = 0; i < maxRetries; i++) {
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response;
-            } catch (error) {
-                lastError = error;
-                if (i < maxRetries - 1) {
-                    const delay = Math.pow(2, i) * 1000 + Math.random() * 500;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
+        if (chatPanel) {
+            chatPanel.classList.remove('hidden');
         }
-        throw new Error(`Failed to fetch from Gemini API after multiple retries. Last error: ${lastError.message}`);
-    };
-
-    const callGeminiApi = async (prompt, systemInstruction) => {
-        const payload = {
-            contents: [{ parts: [{ text: prompt }] }],
-            systemInstruction: { parts: [{ text: systemInstruction }] },
-        };
-        try {
-            const response = await exponentialBackoffFetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const result = await response.json();
-            const candidate = result.candidates?.[0];
-            if (candidate && candidate.content?.parts?.[0]?.text) {
-                let text = candidate.content.parts[0].text;
-                text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-                return text;
-            } else {
-                console.error("Gemini response invalid:", result);
-                throw new Error("AI response structure is invalid.");
-            }
-        } catch (error) {
-            console.error("Error during callGeminiApi:", error);
-            throw new Error("連線失敗或 AI 回傳格式有誤。");
+        if (chatMessages && chatMessages.children.length === 0) {
+            appendChatMessage('system', '已生成行程，可以勾選需要調整的行程，並在此對話欄記錄具體修改需求。');
         }
-    };
-
-    const generatePrompt = () => {
-        const { destination, days, budget, currency, style } = currentFormData;
-        return `
-你是一個專業旅遊規劃師。請規劃 ${days} 天的 ${destination} 旅遊。
-風格：${style}，總預算約 ${budget} ${currency}。
-
-請嚴格只回傳一個有效的 JSON 物件，不要使用 Markdown code block 標記 (不要有 \`\`\`json)。
-請確保所有欄位都存在且格式正確。
-
-JSON 結構需求：
-{
-  "summary": "一句話吸引人的總結 (繁體中文)",
-  "total_budget": 總金額數字 (Number),
-  "breakdown": [{"name": "類別名稱(如住宿)", "value": 金額(Number)}],
-  "itinerary": [
-    { 
-      "day": 1, 
-      "date": "Day 1", 
-      "activities": [
-        { 
-          "time": "10:00 - 12:00", 
-          "title": "活動名稱", 
-          "type": "交通/美食/景點/住宿/購物/其他", 
-          "cost": 預估花費(Number), 
-          "description": "簡介", 
-          "location": "地點" 
-        }
-      ] 
-    }
-  ]
-}
-        `;
     };
 
     const showError = (message) => {
@@ -520,15 +540,12 @@ JSON 結構需求：
 
         try {
             let planData;
-            const systemInstruction = "你是一個專業的旅遊規劃師。你的唯一輸出必須是一個符合 JSON 結構需求的物件，不得包含任何額外的文字或Markdown格式（如```json）。";
-
             if (isApiReady()) {
-                const prompt = generatePrompt();
-                const text = await callGeminiApi(prompt, systemInstruction);
-                planData = JSON.parse(text);
+                // 之後如果要接真的 Gemini API，可以在這裡呼叫
+                planData = MOCK_DATA;
             } else {
                 apiWarning.classList.remove('hidden');
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                await new Promise(resolve => setTimeout(resolve, 1200));
                 planData = MOCK_DATA;
             }
 
@@ -550,6 +567,18 @@ JSON 結構需求：
                 window.lucide.createIcons();
             }
         }
+    };
+
+    // ========= Chat 提交 =========
+    const handleChatSubmit = (e) => {
+        e.preventDefault();
+        if (!chatInput) return;
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+        appendChatMessage('user', msg);
+        chatInput.value = '';
+        // Demo 回覆：之後可以改成真正 AI 回覆
+        appendChatMessage('system', '已記錄，之後可以根據你勾選的行程一起調整。');
     };
 
     // ========= Modal =========
@@ -645,6 +674,10 @@ JSON 結構需求：
 
     // ========= 事件 =========
     document.getElementById('plan-form').addEventListener('submit', handleGeneratePlan);
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', handleChatSubmit);
+    }
 
     if (!isApiReady()) {
         apiWarning.classList.remove('hidden');
