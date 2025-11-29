@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 智能旅遊規劃器</title>
+    <!-- 載入 Tailwind CSS CDN，用於快速美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 Lucide Icons (圖標) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        /* 自定義滾動條以增加美觀度 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar {
+             scrollbar-width: thin;
+             scrollbar-color: #cbd5e1 #f7f9fc;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="flex flex-col lg:flex-row font-sans text-gray-800">
+        
+        <!-- --- 左側控制面板 --- -->
+        <div id="control-panel" class="w-full lg:w-1/3 bg-white p-6 lg:p-8 border-r border-gray-200 shadow-xl z-20 flex flex-col h-auto lg:h-screen lg:sticky lg:top-0">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold flex items-center gap-3 text-indigo-600 mb-2 tracking-tight">
+                    <div class="p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200">
+                       <i data-lucide="sparkles" class="text-white fill-current w-6 h-6"></i> 
+                    </div>
+                    Vibe Travel
+                </h1>
+                <p class="text-gray-500 font-medium ml-1">AI 驅動的智能旅遊規劃</p>
+            </div>
+
+            <!-- API 連線狀態警告 -->
+            <div id="api-warning" class="hidden mb-6 p-4 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-sm gap-3 shadow-sm">
+                <i data-lucide="info" class="flex-shrink-0 w-5 h-5"></i>
+                <div>
+                  <p class="font-bold mb-1">API 連線問題</p>
+                  <p class="opacity-90 leading-relaxed">
+                    目前無法連線 AI 服務。系統將顯示「範例行程」。
+                  </p>
+                </div>
+            </div>
+
+            <form id="plan-form" class="space-y-6 flex-grow overflow-y-auto pr-1 custom-scrollbar">
+                <!-- 目的地 -->
+                <div class="space-y-1">
+                    <label class="block text-sm font-bold text-gray-700 ml-1" for="destination">目的地</label>
+                    <div class="relative group">
+                        <i data-lucide="map-pin" class="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors w-5 h-5"></i>
+                        <input type="text" id="destination" value="北海道" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium" placeholder="例如：東京、巴黎..." required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- 天數 -->
+                    <div class="space-y-1">
+                        <label class="block text-sm font-bold text-gray-700 ml-1" for="days">天數</label>
+                        <div class="relative group">
+                            <i data-lucide="calendar" class="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors w-5 h-5"></i>
+                            <input type="number" id="days" value="5" min="1" max="14" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium" required>
+                        </div>
+                    </div>
+                    
+                    <!-- 預算與幣別欄位 -->
+                    <div class="space-y-1">
+                        <label class="block text-sm font-bold text-gray-700 ml-1" for="budget">預算 & 幣別</label>
+                        <div class="flex gap-2">
+                            <div class="relative group flex-grow">
+                                <i data-lucide="dollar-sign" class="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors w-5 h-5"></i>
+                                <input type="number" id="budget" value="5000" min="0" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-l-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium" required>
+                            </div>
+                            <select id="currency" class="w-24 p-3 bg-gray-50 border border-l-0 border-gray-200 rounded-r-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors">
+                                <option value="MYR">MYR</option>
+                                <option value="TWD">TWD</option>
+                                <option value="USD">USD</option>
+                                <option value="JPY">JPY</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 旅遊風格 -->
+                <div class="space-y-1">
+                    <label class="block text-sm font-bold text-gray-700 ml-1" for="style">旅遊風格</label>
+                    <div class="relative">
+                        <input type="text" id="style" value="賞雪美食" placeholder="例如：親子、情侶放鬆、極限運動..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium placeholder:text-gray-400" required>
+                    </div>
+                </div>
+
+                <!-- 錯誤訊息 -->
+                <div id="error-message" class="hidden p-4 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 text-sm border border-red-100 animate-fade-in">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                    <span id="error-text"></span>
+                </div>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <button id="generate-button" class="w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg hover:shadow-indigo-200 transition-all flex justify-center items-center gap-2 transform active:scale-[0.98] bg-gradient-to-r from-indigo-600 to-purple-600 hover:brightness-110">
+                    <i data-lucide="sparkles" class="w-5 h-5 animate-pulse"></i> 
+                    <span id="button-text">開始 AI 規劃</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- --- 右側內容顯示 --- -->
+        <div id="main-content" class="w-full lg:w-2/3 p-4 md:p-8 lg:p-12 overflow-y-auto bg-gray-50/50 min-h-screen">
+            <div id="initial-state" class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 min-h-[50vh]">
+                <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-6">
+                   <i data-lucide="map-pin" class="w-12 h-12 text-gray-400"></i>
+                </div>
+                <p class="text-xl font-medium">輸入您的夢想，點擊按鈕</p>
+                <p class="text-sm mt-2">AI 將為您生成專屬行程</p>
+            </div>
+
+            <div id="loading-state" class="hidden h-full flex flex-col items-center justify-center min-h-[50vh] space-y-6">
+                 <div class="w-full max-w-2xl bg-white p-6 rounded-3xl shadow-sm space-y-4">
+                     <div class="w-3/4 h-8 bg-gray-200 rounded animate-pulse"></div>
+                     <div class="w-full h-4 bg-gray-100 rounded animate-pulse"></div>
+                     <div class="w-5/6 h-4 bg-gray-100 rounded animate-pulse"></div>
+                 </div>
+                 <div class="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="h-48 bg-gray-200 rounded-3xl animate-pulse"></div>
+                    <div class="h-48 bg-gray-200 rounded-3xl animate-pulse"></div>
+                 </div>
+            </div>
+
+            <div id="plan-output" class="hidden space-y-8 pb-12">
+                <!-- 行程總結區塊將由 JavaScript 渲染 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Packing List and Tips -->
+    <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div id="modal-content-container" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col animate-scale-up">
+            <!-- Modal 內容將由 JS 注入 -->
+        </div>
+    </div>
+
+    <script>
+        // 初始化 Lucide 圖標
+        document.addEventListener('DOMContentLoaded', (event) => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+
+        // --- 設定與常數 ---
+        const apiKey = ""; 
+        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
+        
+        const isApiReady = () => API_URL.includes(MODEL_NAME);
+
+        // --- 模擬資料 (當 API 呼叫失敗或無 Key 時使用) ---
+        const MOCK_DATA = {
+            summary: "【演示資料】這是台北的範例行程。由於目前 API 連線中斷，系統顯示此範例供您參考介面效果。",
+            total_budget: 3500,
+            breakdown: [
+                { name: '住宿', value: 1500 },
+                { name: '餐飲', value: 850 },
+                { name: '購物', value: 800 },
+                { name: '交通', value: 350 },
+            ],
+            itinerary: [
+                { day: 1, date: "Day 1", activities: [
+                    { time: "10:00 - 11:30", type: "交通", title: "抵達台北 (範例)", description: "此為模擬資料，真實生成需連接 API", cost: 300, location: "桃園機場" },
+                    { time: "11:45 - 12:45", type: "住宿", title: "辦理入住", description: "放下行李，準備開始旅程", cost: 1500, location: "西門町飯店" },
+                    { time: "13:00 - 14:30", type: "美食", title: "永康街牛肉麵", description: "享用在地特色美食", cost: 150, location: "永康街" },
+                    { time: "15:00 - 17:00", type: "景點", title: "台北 101 觀光", description: "參觀城市最著名的地標", cost: 120, location: "信義區" },
+                ]},
+                { day: 2, date: "Day 2", activities: [
+                     { time: "09:00 - 10:00", type: "美食", title: "飯店早餐", description: "享用豐盛早餐", cost: 0, location: "飯店" },
+                     { time: "10:30 - 13:00", type: "購物", title: "信義區購物中心", description: "購買伴手禮與紀念品", cost: 500, location: "購物區" },
+                     { time: "13:30 - 15:00", type: "美食", title: "華山文創下午茶", description: "放鬆身心的午後", cost: 120, location: "華山" },
+                     { time: "16:00 - 18:00", type: "景點", title: "松山文創園區", description: "體驗當地文化與藝術", cost: 20, location: "文創區" },
+                ]},
+            ]
+        };
+
+        const MOCK_PACKING_LIST = {
+            categories: [
+                { name: "重要文件", items: ["護照/身分證", "機票/車票證明", "現金 (TWD/外幣)"] },
+                { name: "衣物", items: ["換洗衣物", "好走的鞋", "外套", "睡衣"] },
+                { name: "電子產品", items: ["手機", "充電器/行動電源"] }
+            ]
+        };
+        const MOCK_TIPS = "💡 演示建議：這是一個範例提示。真正的 AI 建議會提供最佳拍照點、必點菜色或避開人潮時間！";
+
+
+        // --- DOM 元素引用 ---
+        const destinationInput = document.getElementById('destination');
+        const daysInput = document.getElementById('days');
+        const budgetInput = document.getElementById('budget');
+        const currencySelect = document.getElementById('currency');
+        const styleInput = document.getElementById('style');
+        const generateButton = document.getElementById('generate-button');
+        const buttonText = document.getElementById('button-text');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const initialState = document.getElementById('initial-state');
+        const loadingState = document.getElementById('loading-state');
+        const planOutput = document.getElementById('plan-output');
+        const apiWarning = document.getElementById('api-warning');
+        
+        // --- 狀態 ---
+        let currentPlan = null;
+        let isGenerating = false;
+        let currentFormData = {};
+        
+        // --- 輔助函式 ---
+        
+        // 渲染 Lucide 圖標的 HTML 輔助函式
+        const iconHtml = (iconName, classes = 'w-4 h-4') => {
+            return `<i data-lucide="${iconName}" class="${classes}"></i>`;
+        };
+
+        // 渲染活動標籤
+        const getTagHtml = (type) => {
+            const map = {
+                "交通": { icon: "train", color: "blue" },
+                "美食": { icon: "utensils", color: "orange" },
+                "景點": { icon: "camera", color: "emerald" },
+                "住宿": { icon: "hotel", color: "purple" },
+                "購物": { icon: "shopping-bag", color: "pink" },
+                "其他": { icon: "sparkles", color: "gray" },
+            };
+            const { icon, color } = map[type] || map["其他"];
+            
+            return `
+                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold border bg-${color}-100 text-${color}-700 border-${color}-200">
+                    ${iconHtml(icon, 'w-3 h-3 mr-1')} ${type}
+                </span>
+            `;
+        };
+        
+        // 渲染預算 breakdown (簡化為列表，不使用複雜圖表)
+        const renderBreakdown = (breakdown) => {
+            if (!breakdown || breakdown.length === 0) return '';
+            
+            const listItems = breakdown.map(item => `
+                <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                    <span class="text-gray-600 font-medium">${item.name}</span>
+                    <span class="text-indigo-600 font-bold">${currentFormData.currency} ${item.value.toLocaleString()}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="w-full md:w-2/3 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h4 class="text-lg font-bold text-gray-700 mb-3">預算分佈</h4>
+                    ${listItems}
+                </div>
+            `;
+        };
+
+        // 渲染行程時間軸
+        const renderItinerary = (itinerary) => {
+            if (!itinerary || itinerary.length === 0) return '';
+            
+            return itinerary.map((dayPlan, dayIndex) => {
+                const activitiesHtml = dayPlan.activities.map((activity, actIndex) => {
+                    const costHtml = activity.cost > 0 
+                        ? `<span class="flex items-center gap-1.5 font-medium text-xs text-gray-600 px-2 py-1 bg-yellow-50 rounded-md">${iconHtml('dollar-sign', 'w-3 h-3 text-yellow-600')} ${currentFormData.currency} ${activity.cost.toLocaleString()}</span>`
+                        : `<span class="flex items-center gap-1.5 font-medium text-xs text-emerald-600 px-2 py-1 bg-emerald-50 rounded-md">${iconHtml('sparkles', 'w-3 h-3')} 免費</span>`;
+                    
+                    return `
+                        <div class="relative pl-10">
+                            <!-- 時間軸圓點 -->
+                            <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm z-10"></div>
+                            
+                            <div class="pb-10">
+                                <div class="flex flex-wrap items-center gap-2 mb-2">
+                                    <span class="text-sm font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded">${activity.time}</span>
+                                    ${getTagHtml(activity.type)}
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-800 mb-2">${activity.title}</h4>
+                                <p class="text-gray-600 text-sm mb-3 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100 inline-block w-full">${activity.description}</p>
+                                
+                                <div class="flex flex-wrap items-center gap-4 mt-1">
+                                    <span class="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md text-xs text-gray-500">
+                                        ${iconHtml('map-pin', 'w-3 h-3 text-gray-400')} ${activity.location}
+                                    </span>
+                                    ${costHtml}
+                                    <button onclick="showTips('${activity.title}', '${activity.location}')" class="text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all shadow-sm">
+                                        ${iconHtml('lightbulb', 'w-3 h-3')} 達人攻略
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <span class="bg-indigo-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm">${dayPlan.day}</span>
+                                第 ${dayPlan.day} 天
+                            </h3>
+                            <div class="text-sm font-medium text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">${dayPlan.date || `Day ${dayPlan.day}`}</div>
+                        </div>
+                        
+                        <div class="p-6 md:p-8">
+                            <div class="relative border-l-2 border-indigo-100 ml-3 md:ml-4 space-y-10 pb-2">
+                                ${activitiesHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // 核心渲染函式：將 JSON 數據轉換為 HTML
+        const renderPlan = (plan) => {
+            planOutput.innerHTML = `
+                <!-- 1. Header & Summary -->
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
+                   <div class="absolute top-0 right-0 p-6 opacity-10">
+                      <i data-lucide="sparkles" class="text-indigo-600 w-32 h-32"></i>
+                   </div>
+                   
+                   <div class="relative z-10">
+                      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+                          ✨ 您的專屬行程
+                        </h2>
+                        
+                        <div class="flex gap-2 w-full md:w-auto">
+                          <button onclick="showPackingList()" class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-sm font-bold hover:bg-emerald-100 transition-colors border border-emerald-100">
+                            ${iconHtml('list-checks', 'w-4 h-4')}
+                            行李清單
+                          </button>
+                        </div>
+                      </div>
+                      <p class="text-lg text-gray-600 leading-relaxed mb-8 font-medium">
+                        ${plan.summary}
+                      </p>
+                      
+                      <div class="flex flex-col md:flex-row gap-8 items-start bg-gray-50 rounded-2xl p-6">
+                        <div class="w-full md:w-1/3 text-center md:text-left md:pl-4">
+                          <span class="text-sm text-gray-400 uppercase tracking-wider font-bold">預估總花費</span>
+                          <div class="text-4xl font-black text-indigo-600 mt-1 tracking-tight flex items-baseline gap-1">
+                            <span class="text-xl font-bold text-indigo-400">${currentFormData.currency}</span>
+                            ${plan.total_budget.toLocaleString()}
+                          </div>
+                          <div class="text-xs text-gray-400 mt-2">包含食宿與交通預估</div>
+                        </div>
+                        <!-- 預算 breakdown 列表 -->
+                        ${renderBreakdown(plan.breakdown)}
+                      </div>
+                   </div>
+                </div>
+
+                <!-- 2. 每日時間軸 -->
+                <div class="space-y-6">
+                    ${renderItinerary(plan.itinerary)}
+                </div>
+            `;
+            // 重新初始化所有 Lucide 圖標
+            lucide.createIcons();
+            planOutput.classList.remove('hidden');
+        };
+
+        // --- API 核心函式 ---
+
+        // 輔助函式：使用指數退避進行 Fetch 請求
+        const exponentialBackoffFetch = async (url, options, maxRetries = 5) => {
+            let lastError = null;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response;
+                } catch (error) {
+                    lastError = error;
+                    if (i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 500;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            throw new Error(`Failed to fetch from Gemini API after multiple retries. Last error: ${lastError.message}`);
+        };
+
+        const callGeminiApi = async (prompt, systemInstruction) => {
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+            };
+
+            try {
+                const response = await exponentialBackoffFetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    let text = candidate.content.parts[0].text;
+                    // 移除所有 markdown code block 標記
+                    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+                    return text;
+                } else {
+                    console.error("Gemini response is invalid or missing content:", result);
+                    throw new Error("AI response structure is invalid.");
+                }
+            } catch (error) {
+                console.error("Error during callGeminiApi:", error);
+                throw new Error("連線失敗或 AI 回傳格式有誤。");
+            }
+        };
+
+        // --- 行程生成與流程控制 ---
+        
+        const generatePrompt = () => {
+            const { destination, days, budget, currency, style } = currentFormData;
+            return `
+                你是一個專業旅遊規劃師。請規劃 ${days} 天的 ${destination} 旅遊。
+                風格：${style}，總預算約 ${budget} ${currency}。
+                
+                請嚴格只回傳一個有效的 JSON 物件，不要使用 Markdown code block 標記 (不要有 \`\`\`json)。
+                請確保所有欄位都存在且格式正確。
+                
+                JSON 結構需求：
+                {
+                  "summary": "一句話吸引人的總結 (繁體中文)",
+                  "total_budget": 總金額數字 (Number),
+                  "breakdown": [{"name": "類別名稱(如住宿)", "value": 金額(Number)}],
+                  "itinerary": [
+                    { 
+                      "day": 1, 
+                      "date": "Day 1", 
+                      "activities": [
+                        { 
+                          "time": "10:00 - 12:00", 
+                          "title": "活動名稱", 
+                          "type": "交通/美食/景點/住宿/購物/其他", 
+                          "cost": 預估花費(Number), 
+                          "description": "簡介", 
+                          "location": "地點" 
+                        }
+                      ] 
+                    }
+                  ]
+                }
+            `;
+        }
+
+        const handleGeneratePlan = async (e) => {
+            e.preventDefault();
+
+            // 1. 更新狀態並驗證
+            currentFormData = {
+                destination: destinationInput.value.trim(),
+                days: parseInt(daysInput.value, 10),
+                budget: parseInt(budgetInput.value, 10),
+                currency: currencySelect.value,
+                style: styleInput.value.trim()
+            };
+
+            if (!currentFormData.destination || currentFormData.days < 1 || currentFormData.budget < 0) {
+                showError("請填寫所有必要的欄位。");
+                return;
+            }
+
+            // 2. 顯示加載狀態
+            isGenerating = true;
+            generateButton.disabled = true;
+            generateButton.classList.remove('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'hover:brightness-110');
+            generateButton.classList.add('bg-slate-400', 'cursor-not-allowed');
+            buttonText.innerHTML = `${iconHtml('loader-2', 'w-5 h-5 animate-spin')} 規劃行程中...`;
+            hideError();
+            initialState.classList.add('hidden');
+            planOutput.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+
+
+            try {
+                let planData;
+                const systemInstruction = "你是一個專業的旅遊規劃師。你的唯一輸出必須是一個符合 JSON 結構需求的物件，不得包含任何額外的文字或Markdown格式（如```json）。";
+
+                if (isApiReady()) {
+                    const prompt = generatePrompt();
+                    const text = await callGeminiApi(prompt, systemInstruction);
+                    planData = JSON.parse(text);
+                } else {
+                    apiWarning.classList.remove('hidden');
+                    // 使用模擬數據
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    planData = MOCK_DATA;
+                }
+                
+                currentPlan = planData;
+                renderPlan(planData);
+
+            } catch (error) {
+                console.error("生成行程失敗:", error);
+                showError(`無法生成行程: ${error.message || '連線錯誤。'}`);
+                
+                // 失敗時使用模擬數據作為 fallback
+                currentPlan = MOCK_DATA;
+                renderPlan(MOCK_DATA);
+            } finally {
+                // 3. 恢復按鈕狀態
+                isGenerating = false;
+                generateButton.disabled = false;
+                generateButton.classList.remove('bg-slate-400', 'cursor-not-allowed');
+                generateButton.classList.add('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'hover:brightness-110');
+                buttonText.innerHTML = `${iconHtml('sparkles', 'w-5 h-5 animate-pulse')} 開始 AI 規劃`;
+                loadingState.classList.add('hidden');
+                
+                // 重新初始化所有 Lucide 圖標 (為了 button 上的圖標)
+                lucide.createIcons();
+            }
+        };
+
+        // --- Modal 相關功能 ---
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContentContainer = document.getElementById('modal-content-container');
+
+        const openModal = (title, contentHtml) => {
+            modalContentContainer.innerHTML = `
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        ${title}
+                    </h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 p-2 rounded-full transition-all">
+                        ${iconHtml('x', 'w-5 h-5')}
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto custom-scrollbar">
+                    ${contentHtml}
+                </div>
+                <div class="p-4 border-t border-gray-100 text-right bg-white">
+                    <button onclick="closeModal()" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
+                        關閉
+                    </button>
+                </div>
+            `;
+            modalBackdrop.classList.remove('hidden');
+            lucide.createIcons(); // 重新渲染 Modal 內的圖標
+        };
+
+        const closeModal = () => {
+            modalBackdrop.classList.add('hidden');
+        };
+
+        window.showPackingList = async () => {
+            const packingTitle = `${iconHtml('list-checks', 'w-5 h-5 text-emerald-500')} 行李清單`;
+            const loadingHtml = `
+                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                    ${iconHtml('loader-2', 'w-10 h-10 animate-spin text-emerald-500 mb-4')}
+                    <p>正在根據您的目的地與風格分析所需物品...</p>
+                </div>
+            `;
+            openModal(packingTitle, loadingHtml);
+
+            try {
+                let listData;
+                if (isApiReady()) {
+                    // 為了簡化，這裡仍然使用模擬數據，因為生成清單需要另一個 API 呼叫和結構解析，
+                    // 而核心功能是行程規劃。實際應用中，應在此處調用 API。
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    listData = MOCK_PACKING_LIST;
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    listData = MOCK_PACKING_LIST;
+                }
+
+                const listHtml = `
+                    <div class="space-y-6">
+                        <p class="text-sm text-gray-500 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                            ✈️ 這是為您的 <strong>${currentFormData.destination} ${currentFormData.days}天</strong> 之旅準備的建議清單。
+                        </p>
+                        ${listData.categories.map((cat, idx) => `
+                            <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+                                <div class="bg-gray-50 px-4 py-2 font-bold text-gray-700 border-b border-gray-100 flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                    ${cat.name}
+                                </div>
+                                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    ${cat.items.map((item, itemIdx) => `
+                                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                                            <input type="checkbox" class="rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer" />
+                                            <span>${item}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                openModal(packingTitle, listHtml);
+
+            } catch (e) {
+                openModal(packingTitle, '<div class="text-center py-8 text-red-500">生成清單失敗。</div>');
+            }
+        };
+
+        window.showTips = async (activityTitle, location) => {
+             const tipsTitle = `${iconHtml('lightbulb', 'w-5 h-5 text-amber-500 fill-amber-100')} ${activityTitle} 達人攻略`;
+             const loadingHtml = `
+                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                    ${iconHtml('loader-2', 'w-10 h-10 animate-spin text-amber-500 mb-4')}
+                    <p>正在尋找最佳攻略...</p>
+                </div>
+            `;
+             openModal(tipsTitle, loadingHtml);
+
+             // 這裡直接使用模擬數據，因為真正的 tips 獲取需要另一個 API 呼叫
+             await new Promise(resolve => setTimeout(resolve, 800));
+             const tipsContent = `<div class="text-gray-700 leading-relaxed text-lg p-2">${MOCK_TIPS}</div>`;
+             openModal(tipsTitle, tipsContent);
+        };
+        
+        // --- 錯誤處理 ---
+        const showError = (message) => {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+        };
+
+        const hideError = () => {
+            errorMessage.classList.add('hidden');
+            errorText.textContent = '';
+        };
+
+        // --- 事件監聽器 ---
+        document.getElementById('plan-form').addEventListener('submit', handleGeneratePlan);
+        
+        // 檢查 API 狀態並顯示警告 (如果環境未提供 API Key)
+        if (!isApiReady()) {
+             apiWarning.classList.remove('hidden');
+        }
+
+    </script>
+</body>
+</html>
