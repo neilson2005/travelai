@@ -1,674 +1,2077 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 智能旅遊規劃器</title>
-    <!-- 載入 Tailwind CSS CDN，用於快速美化 -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 載入 Lucide Icons (圖標) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fc;
-        }
-        /* 自定義滾動條以增加美觀度 */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 10px;
-        }
-        .custom-scrollbar {
-             scrollbar-width: thin;
-             scrollbar-color: #cbd5e1 #f7f9fc;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#080b12" />
+  <meta name="description" content="AI-powered travel itinerary planner. Plan any trip in seconds with Gemini AI." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="VibeTravl" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- Open Graph for share previews -->
+  <meta property="og:title" content="Vibe Travel — AI Itinerary Planner" />
+  <meta property="og:description" content="Plan your perfect trip with Gemini AI" />
+  <meta property="og:url" content="https://neilson2005.github.io/travelai/" />
+  <meta property="og:type" content="website" />
+
+  <title>Vibe Travel</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    /* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+    :root {
+      --bg: #080b12;
+      --bg2: #0e1220;
+      --surface: #131826;
+      --surface2: #1c2235;
+      --surface3: #242b40;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hi: rgba(212, 175, 95, 0.35);
+      --gold: #d4af5f;
+      --gold-lt: #e8cc88;
+      --gold-dim: rgba(212, 175, 95, 0.12);
+      --gold-glow: rgba(212, 175, 95, 0.22);
+      --sky: #89c4d8;
+      --mint: #78d5b8;
+      --coral: #e07c6a;
+      --text: #eaecf3;
+      --muted: #6b748f;
+      --success: #5ecf94;
+      --danger: #e06a6a;
+      --r: 16px;
+      --r-sm: 10px;
+      --r-xs: 6px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    html {
+      scroll-behavior: smooth;
+      height: 100%
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      padding-top: var(--safe-top);
+    }
+
+    /* grain overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ambient orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      top: -180px;
+      left: -120px;
+      background: radial-gradient(circle, rgba(212, 175, 95, .07), transparent 70%);
+    }
+
+    .orb-2 {
+      width: 420px;
+      height: 420px;
+      bottom: -80px;
+      right: -80px;
+      background: radial-gradient(circle, rgba(137, 196, 216, .07), transparent 70%);
+    }
+
+    /* ═══════════════════════════════════════════════
+   BOTTOM NAV (PWA Nav)
+═══════════════════════════════════════════════ */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(8, 11, 18, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding-bottom: var(--safe-bot);
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 0 8px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-btn.active {
+      color: var(--gold);
+    }
+
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .nav-dot {
+      position: absolute;
+      top: 8px;
+      right: calc(50% - 14px);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--coral);
+      display: none;
+    }
+
+    .nav-dot.show {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════════
+   PAGES
+═══════════════════════════════════════════════ */
+    .page {
+      display: none;
+      min-height: 100dvh;
+      padding: 0 0 calc(80px + var(--safe-bot));
+      position: relative;
+      z-index: 1;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════════
+   PAGE: PLAN
+═══════════════════════════════════════════════ */
+    .plan-header {
+      padding: clamp(32px, 8vw, 56px) 20px 0;
+      text-align: center;
+      animation: fadeDown .6s ease both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-glow);
+      color: var(--gold);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 100px;
+      margin-bottom: 18px;
+    }
+
+    .app-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 12vw, 5.5rem);
+      font-weight: 300;
+      line-height: .95;
+      letter-spacing: -.01em;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .app-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .app-sub {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 300;
+      max-width: 340px;
+      margin: 12px auto 0;
+      line-height: 1.6;
+    }
+
+    /* form card */
+    .form-wrap {
+      max-width: 480px;
+      margin: 28px auto 0;
+      padding: 0 16px;
+      animation: fadeUp .6s ease both .15s;
+    }
+
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 16px;
+    }
+
+    .field:last-of-type {
+      margin-bottom: 0;
+    }
+
+    label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input[type=text],
+    input[type=number],
+    select,
+    textarea {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      width: 100%;
+      transition: border-color .2s, box-shadow .2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--muted);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-dim);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b748f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+
+    select option {
+      background: var(--surface2);
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .budget-row {
+      display: grid;
+      grid-template-columns: 1fr 90px;
+      gap: 10px;
+    }
+
+    /* style chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: all .18s;
+      user-select: none;
+    }
+
+    .chip:hover {
+      border-color: var(--gold-glow);
+      color: var(--text);
+    }
+
+    .chip.on {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* generate button */
+    .btn-gen {
+      width: 100%;
+      background: var(--gold);
+      color: #080b12;
+      border: none;
+      border-radius: var(--r-sm);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 15px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .15s, box-shadow .2s, opacity .2s;
+    }
+
+    .btn-gen:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px var(--gold-glow);
+    }
+
+    .btn-gen:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-gen:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .btn-gen::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent);
+      transition: left .55s;
+    }
+
+    .btn-gen:hover::after {
+      left: 150%;
+    }
+
+    /* error */
+    .err {
+      display: none;
+      background: rgba(224, 106, 106, .1);
+      border: 1px solid rgba(224, 106, 106, .3);
+      border-radius: var(--r-sm);
+      padding: 12px 16px;
+      margin-top: 14px;
+      color: var(--danger);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .err.show {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════════
+   LOADING OVERLAY
+═══════════════════════════════════════════════ */
+    .loading {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(8, 11, 18, .92);
+      backdrop-filter: blur(12px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .loading.show {
+      display: flex;
+    }
+
+    .ring {
+      width: 52px;
+      height: 52px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+
+    .load-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      color: var(--text);
+    }
+
+    .load-steps {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .load-step {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0;
+      animation: stepIn .4s ease both;
+    }
+
+    .load-step.on {
+      color: var(--gold-lt);
+      opacity: 1;
+    }
+
+    /* ═══════════════════════════════════════════════
+   RESULT VIEW
+═══════════════════════════════════════════════ */
+    .result-wrap {
+      display: none;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px calc(90px + var(--safe-bot));
+      animation: fadeUp .5s ease both;
+    }
+
+    .result-wrap.show {
+      display: block;
+    }
+
+    .result-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .btn-back {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: var(--r-sm);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+
+    .btn-back:hover {
+      border-color: var(--border-hi);
+      color: var(--gold);
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon-action {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: var(--r-sm);
+      width: 38px;
+      height: 38px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      flex-shrink: 0;
+      font-size: 16px;
+    }
+
+    .btn-icon-action:hover {
+      border-color: var(--border-hi);
+      color: var(--gold);
+    }
+
+    .result-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 5vw, 2rem);
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pill-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* day tabs */
+    .day-tabs-wrap {
+      position: relative;
+    }
+
+    .day-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 4px;
+      padding: 0 0 2px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+
+    .day-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .dtab {
+      flex-shrink: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: all .18s;
+      white-space: nowrap;
+    }
+
+    .dtab:hover {
+      border-color: var(--border-hi);
+      color: var(--text);
+    }
+
+    .dtab.on {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* panels */
+    .panel {
+      display: none;
+    }
+
+    .panel.on {
+      display: block;
+    }
+
+    /* itinerary content rendering */
+    .ic h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--gold-lt);
+      margin: 24px 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ic h2:first-child {
+      margin-top: 0;
+    }
+
+    .ic h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sky);
+      margin: 16px 0 6px;
+    }
+
+    .ic p {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--text);
+      opacity: .87;
+      margin-bottom: 8px;
+    }
+
+    .ic ul,
+    .ic ol {
+      padding-left: 18px;
+      margin-bottom: 10px;
+    }
+
+    .ic li {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+      opacity: .83;
+      margin-bottom: 3px;
+    }
+
+    .ic strong {
+      font-weight: 600;
+      color: var(--text);
+      opacity: 1;
+    }
+
+    /* timeline */
+    .tl {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tl-item {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 0 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .tl-item:last-child {
+      border-bottom: none;
+    }
+
+    .tl-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      padding-top: 3px;
+      text-align: right;
+    }
+
+    .tl-line-wrap {
+      position: relative;
+    }
+
+    .tl-dot {
+      position: absolute;
+      left: -17px;
+      top: 4px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 2px solid var(--bg);
+    }
+
+    .tl-vline {
+      position: absolute;
+      left: -14px;
+      top: 12px;
+      width: 1px;
+      height: calc(100% + 14px);
+      background: var(--border);
+    }
+
+    .tl-item:last-child .tl-vline {
+      display: none;
+    }
+
+    .tl-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .tl-text {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text);
+      opacity: .85;
+    }
+
+    .tl-tag {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--mint);
+      padding: 2px 7px;
+      margin-top: 5px;
+    }
+
+    .tip-box {
+      background: rgba(212, 175, 95, .07);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text);
+      opacity: .9;
+      line-height: 1.6;
+      margin-top: 14px;
+    }
+
+    .tip-box strong {
+      color: var(--gold);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* budget table */
+    .btable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .btable th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      padding: 8px 10px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .btable td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      opacity: .85;
+    }
+
+    .btable tr:last-child td {
+      border-bottom: none;
+      font-weight: 600;
+      color: var(--gold);
+      opacity: 1;
+    }
+
+    .btable .amt {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+    }
+
+    /* tips grid */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .tip-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
+      opacity: .85;
+    }
+
+    .tip-card strong {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--gold);
+      opacity: 1;
+      margin-bottom: 5px;
+    }
+
+    /* ═══════════════════════════════════════════════
+   PAGE: SAVED
+═══════════════════════════════════════════════ */
+    .page-header {
+      padding: clamp(28px, 6vw, 48px) 20px 20px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .page-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 7vw, 2.8rem);
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .saved-list {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 16px calc(90px + var(--safe-bot));
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .saved-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .saved-empty svg {
+      width: 48px;
+      height: 48px;
+      opacity: .3;
+      margin: 0 auto 16px;
+      display: block;
+    }
+
+    .saved-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: border-color .2s, transform .15s;
+      position: relative;
+      animation: fadeUp .4s ease both;
+    }
+
+    .saved-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+    }
+
+    .sc-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .sc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .sc-pill {
+      background: var(--surface2);
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 3px 10px;
+    }
+
+    .sc-date {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .sc-actions {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .sc-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: var(--r-xs);
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .18s;
+    }
+
+    .sc-btn:hover {
+      border-color: var(--border-hi);
+      color: var(--gold);
+    }
+
+    .sc-btn.del:hover {
+      border-color: rgba(224, 106, 106, .4);
+      color: var(--danger);
+    }
+
+    /* ═══════════════════════════════════════════════
+   SHARE SHEET
+═══════════════════════════════════════════════ */
+    .sheet-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(8, 11, 18, .7);
+      backdrop-filter: blur(8px);
+      align-items: flex-end;
+    }
+
+    .sheet-overlay.show {
+      display: flex;
+    }
+
+    .sheet {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-radius: var(--r) var(--r) 0 0;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 20px calc(20px + var(--safe-bot));
+      animation: slideUp .3s ease both;
+    }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--surface3);
+      margin: 0 auto 20px;
+    }
+
+    .sheet-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .share-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .share-opt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 8px;
+      cursor: pointer;
+      transition: all .18s;
+    }
+
+    .share-opt:hover {
+      border-color: var(--border-hi);
+    }
+
+    .share-opt .icon {
+      font-size: 22px;
+    }
+
+    .share-opt span {
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .share-link-row {
+      display: flex;
+      gap: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 10px 14px;
+      align-items: center;
+    }
+
+    .share-link-row input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+    }
+
+    .btn-copy-link {
+      background: var(--gold);
+      color: #080b12;
+      border: none;
+      border-radius: var(--r-xs);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+
+    .btn-copy-link:hover {
+      opacity: .85;
+    }
+
+    .btn-cancel-sheet {
+      width: 100%;
+      margin-top: 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 11px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-cancel-sheet:hover {
+      border-color: var(--border-hi);
+      color: var(--text);
+    }
+
+    /* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: calc(72px + var(--safe-bot) + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text);
+      padding: 9px 20px;
+      z-index: 400;
+      opacity: 0;
+      transition: all .3s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ═══════════════════════════════════════════════
+   INSTALL BANNER
+═══════════════════════════════════════════════ */
+    .install-banner {
+      display: none;
+      max-width: 480px;
+      margin: 16px auto 0;
+      padding: 0 16px;
+      animation: fadeUp .4s ease both;
+    }
+
+    .install-banner.show {
+      display: block;
+    }
+
+    .install-inner {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-glow);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .install-inner .icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .install-txt {
+      flex: 1;
+    }
+
+    .install-txt strong {
+      display: block;
+      font-size: 13px;
+      color: var(--gold-lt);
+      margin-bottom: 2px;
+    }
+
+    .install-txt span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .btn-install {
+      background: var(--gold);
+      color: #080b12;
+      border: none;
+      border-radius: var(--r-xs);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity .2s;
+    }
+
+    .btn-install:hover {
+      opacity: .85;
+    }
+
+    .btn-dismiss {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════ */
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes stepIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%)
+      }
+
+      to {
+        transform: translateY(0)
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+    @media(max-width:400px) {
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .share-options {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
 </head>
-<body class="min-h-screen">
 
-    <div class="flex flex-col lg:flex-row font-sans text-gray-800">
-        
-        <!-- --- 左側控制面板 --- -->
-        <div id="control-panel" class="w-full lg:w-1/3 bg-white p-6 lg:p-8 border-r border-gray-200 shadow-xl z-20 flex flex-col h-auto lg:h-screen lg:sticky lg:top-0">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold flex items-center gap-3 text-indigo-600 mb-2 tracking-tight">
-                    <div class="p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200">
-                       <i data-lucide="sparkles" class="text-white fill-current w-6 h-6"></i> 
-                    </div>
-                    Vibe Travel
-                </h1>
-                <p class="text-gray-500 font-medium ml-1">AI 驅動的智能旅遊規劃</p>
-            </div>
+<body>
 
-            <!-- API 連線狀態警告 -->
-            <div id="api-warning" class="hidden mb-6 p-4 bg-amber-50 text-amber-800 rounded-xl border border-amber-200 text-sm gap-3 shadow-sm">
-                <i data-lucide="info" class="flex-shrink-0 w-5 h-5"></i>
-                <div>
-                  <p class="font-bold mb-1">API 連線問題</p>
-                  <p class="opacity-90 leading-relaxed">
-                    目前無法連線 AI 服務。系統將顯示「範例行程」。
-                  </p>
-                </div>
-            </div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
-            <form id="plan-form" class="space-y-6 flex-grow overflow-y-auto pr-1 custom-scrollbar">
-                <!-- 目的地 -->
-                <div class="space-y-1">
-                    <label class="block text-sm font-bold text-gray-700 ml-1" for="destination">目的地</label>
-                    <div class="relative group">
-                        <i data-lucide="map-pin" class="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors w-5 h-5"></i>
-                        <input type="text" id="destination" value="北海道" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium" placeholder="例如：東京、巴黎..." required>
-                    </div>
-                </div>
+  <!-- ══ INSTALL BANNER ══════════════════════════════════════ -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-inner">
+      <div class="icon">✈️</div>
+      <div class="install-txt">
+        <strong>Add to Home Screen</strong>
+        <span>Install Vibe Travel for quick access</span>
+      </div>
+      <button class="btn-install" id="btnInstall">Install</button>
+      <button class="btn-dismiss" onclick="dismissInstall()">✕</button>
+    </div>
+  </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- 天數 -->
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 ml-1" for="days">天數</label>
-                        <div class="relative group">
-                            <i data-lucide="calendar" class="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors w-5 h-5"></i>
-                            <input type="number" id="days" value="5" min="1" max="14" class="w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium" required>
-                        </div>
-                    </div>
-                    
-                    <!-- 預算與幣別欄位 -->
-                    <div class="space-y-1">
-                        <label class="block text-sm font-bold text-gray-700 ml-1" for="budget">預算 & 幣別</label>
-                        <div class="flex gap-2">
-                            <div class="relative group flex-grow">
-                                <i data-lucide="dollar-sign" class="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors w-5 h-5"></i>
-                                <input type="number" id="budget" value="5000" min="0" class="w-full pl-10 p-3 bg-gray-50 border border-l-0 border-gray-200 rounded-r-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium" required>
-                            </div>
-                            <select id="currency" class="w-24 p-3 bg-gray-50 border border-l-0 border-gray-200 rounded-r-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors">
-                                <option value="MYR">MYR</option>
-                                <option value="TWD">TWD</option>
-                                <option value="USD">USD</option>
-                                <option value="JPY">JPY</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+  <!-- ══════════════════════════════════════════════════════
+     PAGE: PLAN
+════════════════════════════════════════════════════════ -->
+  <div class="page active" id="pagePlan">
 
-                <!-- 旅遊風格 -->
-                <div class="space-y-1">
-                    <label class="block text-sm font-bold text-gray-700 ml-1" for="style">旅遊風格</label>
-                    <div class="relative">
-                        <input type="text" id="style" value="賞雪美食" placeholder="例如：親子、情侶放鬆、極限運動..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium placeholder:text-gray-400" required>
-                    </div>
-                </div>
-
-                <!-- 錯誤訊息 -->
-                <div id="error-message" class="hidden p-4 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 text-sm border border-red-100 animate-fade-in">
-                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                    <span id="error-text"></span>
-                </div>
-            </form>
-
-            <div class="mt-8 pt-6 border-t border-gray-100">
-                <button id="generate-button" class="w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg hover:shadow-indigo-200 transition-all flex justify-center items-center gap-2 transform active:scale-[0.98] bg-gradient-to-r from-indigo-600 to-purple-600 hover:brightness-110">
-                    <i data-lucide="sparkles" class="w-5 h-5 animate-pulse"></i> 
-                    <span id="button-text">開始 AI 規劃</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- --- 右側內容顯示 --- -->
-        <div id="main-content" class="w-full lg:w-2/3 p-4 md:p-8 lg:p-12 overflow-y-auto bg-gray-50/50 min-h-screen">
-            <div id="initial-state" class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 min-h-[50vh]">
-                <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mb-6">
-                   <i data-lucide="map-pin" class="w-12 h-12 text-gray-400"></i>
-                </div>
-                <p class="text-xl font-medium">輸入您的夢想，點擊按鈕</p>
-                <p class="text-sm mt-2">AI 將為您生成專屬行程</p>
-            </div>
-
-            <div id="loading-state" class="hidden h-full flex flex-col items-center justify-center min-h-[50vh] space-y-6">
-                 <div class="w-full max-w-2xl bg-white p-6 rounded-3xl shadow-sm space-y-4">
-                     <div class="w-3/4 h-8 bg-gray-200 rounded animate-pulse"></div>
-                     <div class="w-full h-4 bg-gray-100 rounded animate-pulse"></div>
-                     <div class="w-5/6 h-4 bg-gray-100 rounded animate-pulse"></div>
-                 </div>
-                 <div class="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="h-48 bg-gray-200 rounded-3xl animate-pulse"></div>
-                    <div class="h-48 bg-gray-200 rounded-3xl animate-pulse"></div>
-                 </div>
-            </div>
-
-            <div id="plan-output" class="hidden space-y-8 pb-12">
-                <!-- 行程總結區塊將由 JavaScript 渲染 -->
-            </div>
-        </div>
+    <div class="plan-header">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 000 20M2 12h20" />
+        </svg>
+        AI Travel Planner
+      </div>
+      <div class="app-title">Vibe <em>Travel</em></div>
+      <p class="app-sub">Tell Gemini AI where you want to go. Get a full itinerary in seconds.</p>
     </div>
 
-    <!-- Modal for Packing List and Tips -->
-    <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div id="modal-content-container" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col animate-scale-up">
-            <!-- Modal 內容將由 JS 注入 -->
+    <div class="form-wrap">
+      <div class="form-card">
+
+        <div class="field">
+          <label>Destination</label>
+          <input type="text" id="dest" placeholder="e.g. Tokyo, Kyoto, Bali…" autocomplete="off" />
         </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Duration</label>
+            <select id="days">
+              <option value="3">3 Days</option>
+              <option value="5" selected>5 Days</option>
+              <option value="7">7 Days</option>
+              <option value="10">10 Days</option>
+              <option value="14">14 Days</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Travellers</label>
+            <select id="travellers">
+              <option value="Solo">Solo</option>
+              <option value="Couple" selected>Couple</option>
+              <option value="Small Group">Small Group</option>
+              <option value="Family">Family</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Budget per Person</label>
+          <div class="budget-row">
+            <input type="number" id="budget" placeholder="2000" min="0" />
+            <select id="currency">
+              <option value="MYR">MYR</option>
+              <option value="USD">USD</option>
+              <option value="JPY">JPY</option>
+              <option value="EUR">EUR</option>
+              <option value="SGD">SGD</option>
+              <option value="THB">THB</option>
+              <option value="AUD">AUD</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Travel Style</label>
+          <div class="chips" id="styleChips">
+            <div class="chip on" data-v="Balanced Explorer">🧭 Balanced</div>
+            <div class="chip" data-v="Adventure & Outdoor">🏔️ Adventure</div>
+            <div class="chip" data-v="Culture & History">🏛️ Culture</div>
+            <div class="chip" data-v="Food & Culinary">🍜 Food</div>
+            <div class="chip" data-v="Luxury & Comfort">✨ Luxury</div>
+            <div class="chip" data-v="Budget Backpacker">🎒 Budget</div>
+            <div class="chip" data-v="Family Friendly">👨‍👩‍👧 Family</div>
+            <div class="chip" data-v="Romantic Getaway">💑 Romantic</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Notes (optional)</label>
+          <input type="text" id="notes" placeholder="e.g. vegan, no hiking, beach preferred…" />
+        </div>
+
+        <button class="btn-gen" id="btnGen" onclick="generate()">
+          <span>✦</span> Generate My Itinerary
+        </button>
+        <div class="err" id="errBox"></div>
+
+      </div>
     </div>
 
-    <script>
-        // 初始化 Lucide 圖標
-        // 確保在 Lucide CDN 載入完成後才呼叫 createIcons()
-        document.addEventListener('DOMContentLoaded', (event) => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
+  </div><!-- /pagePlan -->
+
+  <!-- ══════════════════════════════════════════════════════
+     PAGE: RESULT (shown over plan page)
+════════════════════════════════════════════════════════ -->
+  <div class="page" id="pageResult">
+    <div class="result-wrap show" id="resultWrap">
+      <div class="result-topbar">
+        <button class="btn-back" onclick="backToPlan()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+          Back
+        </button>
+        <div class="action-btns">
+          <button class="btn-icon-action" title="Save" onclick="saveItinerary()">💾</button>
+          <button class="btn-icon-action" title="Share" onclick="openShare()">🔗</button>
+          <button class="btn-icon-action" title="Copy text" onclick="copyRaw()">📋</button>
+        </div>
+      </div>
+      <div class="result-title" id="rTitle">Your Itinerary</div>
+      <div class="meta-row" id="rMeta"></div>
+      <div class="day-tabs" id="dayTabs"></div>
+      <div id="panels"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+     PAGE: SAVED
+════════════════════════════════════════════════════════ -->
+  <div class="page" id="pageSaved">
+    <div class="page-header">
+      <div class="page-h1">Saved <em style="font-style:italic;color:var(--gold)">Trips</em></div>
+      <p class="page-sub">Your itineraries, available offline</p>
+    </div>
+    <div class="saved-list" id="savedList"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+     BOTTOM NAV
+════════════════════════════════════════════════════════ -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="navPlan" onclick="switchPage('plan')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a14.5 14.5 0 000 20M2 12h20" />
+      </svg>
+      Plan
+    </button>
+    <button class="nav-btn" id="navSaved" onclick="switchPage('saved')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+      </svg>
+      Saved
+      <div class="nav-dot" id="savedDot"></div>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════
+     LOADING OVERLAY
+════════════════════════════════════════════════════════ -->
+  <div class="loading" id="loadingOverlay">
+    <div class="ring"></div>
+    <div class="load-title">Crafting your trip…</div>
+    <div class="load-steps">
+      <div class="load-step on" id="ls1">📍 Analysing destination</div>
+      <div class="load-step" id="ls2">🗓️ Planning day by day</div>
+      <div class="load-step" id="ls3">💰 Estimating budget</div>
+      <div class="load-step" id="ls4">✨ Adding local gems</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+     SHARE SHEET
+════════════════════════════════════════════════════════ -->
+  <div class="sheet-overlay" id="shareSheet" onclick="closeShare(event)">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Share Itinerary</div>
+      <div class="share-options">
+        <div class="share-opt" onclick="shareVia('native')">
+          <div class="icon">📤</div><span>Share</span>
+        </div>
+        <div class="share-opt" onclick="shareVia('whatsapp')">
+          <div class="icon">💬</div><span>WhatsApp</span>
+        </div>
+        <div class="share-opt" onclick="shareVia('copy')">
+          <div class="icon">🔗</div><span>Copy Link</span>
+        </div>
+        <div class="share-opt" onclick="shareVia('text')">
+          <div class="icon">📋</div><span>Copy Text</span>
+        </div>
+      </div>
+      <div class="share-link-row">
+        <input type="text" id="shareUrl" readonly />
+        <button class="btn-copy-link" onclick="shareVia('copy')">Copy</button>
+      </div>
+      <button class="btn-cancel-sheet" onclick="closeShare()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ══════════════════════════════════════════════════════
+    //  CONFIG — update WORKER_URL after deploying Cloudflare Worker
+    // ══════════════════════════════════════════════════════
+    const WORKER_URL = 'https://travelai.ckh892006.workers.dev';
+
+    // ══════════════════════════════════════════════════════
+    //  STATE
+    // ══════════════════════════════════════════════════════
+    let currentRaw = '';
+    let currentMeta = {};
+    let deferredPrompt = null;
+
+    // ══════════════════════════════════════════════════════
+    //  PWA — service worker + install prompt
+    // ══════════════════════════════════════════════════════
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/travelai/sw.js')
+          .catch(e => console.warn('SW reg failed:', e));
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (!localStorage.getItem('pwa_dismissed')) {
+        document.getElementById('installBanner').classList.add('show');
+      }
+    });
+
+    document.getElementById('btnInstall').onclick = async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installBanner').classList.remove('show');
+    };
+
+    function dismissInstall() {
+      localStorage.setItem('pwa_dismissed', '1');
+      document.getElementById('installBanner').classList.remove('show');
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  NAVIGATION
+    // ══════════════════════════════════════════════════════
+    function switchPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      if (page === 'plan') {
+        document.getElementById('pagePlan').classList.add('active');
+        document.getElementById('navPlan').classList.add('active');
+      } else if (page === 'saved') {
+        document.getElementById('pageSaved').classList.add('active');
+        document.getElementById('navSaved').classList.add('active');
+        renderSavedList();
+      } else if (page === 'result') {
+        document.getElementById('pageResult').classList.add('active');
+      }
+    }
+
+    function backToPlan() {
+      switchPage('plan');
+    }
+
+    // handle ?view=saved deeplink
+    if (location.search.includes('view=saved')) switchPage('saved');
+
+    // ══════════════════════════════════════════════════════
+    //  STYLE CHIPS — single select
+    // ══════════════════════════════════════════════════════
+    document.querySelectorAll('#styleChips .chip').forEach(c => {
+      c.onclick = () => {
+        document.querySelectorAll('#styleChips .chip').forEach(x => x.classList.remove('on'));
+        c.classList.add('on');
+      };
+    });
+    function getStyle() {
+      return document.querySelector('#styleChips .chip.on')?.dataset.v || 'Balanced Explorer';
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  LOADING STEPS
+    // ══════════════════════════════════════════════════════
+    let stepTimer;
+    function startSteps() {
+      const ids = ['ls1', 'ls2', 'ls3', 'ls4'];
+      let i = 0;
+      ids.forEach(id => { document.getElementById(id).classList.remove('on'); });
+      document.getElementById(ids[0]).classList.add('on');
+      stepTimer = setInterval(() => {
+        if (i > 0) document.getElementById(ids[i - 1]).classList.remove('on');
+        i++;
+        if (i < ids.length) document.getElementById(ids[i]).classList.add('on');
+        else clearInterval(stepTimer);
+      }, 1600);
+    }
+    function stopSteps() { clearInterval(stepTimer); }
+
+    // ══════════════════════════════════════════════════════
+    //  TOAST
+    // ══════════════════════════════════════════════════════
+    let toastTimer;
+    function toast(msg, dur = 2200) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), dur);
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  BUILD PROMPT
+    // ══════════════════════════════════════════════════════
+    function buildPrompt() {
+      const dest = document.getElementById('dest').value.trim();
+      const days = document.getElementById('days').value;
+      const travellers = document.getElementById('travellers').value;
+      const budget = document.getElementById('budget').value;
+      const currency = document.getElementById('currency').value;
+      const style = getStyle();
+      const notes = document.getElementById('notes').value.trim();
+      const budgetTxt = budget ? `${budget} ${currency} per person` : 'flexible';
+
+      return `You are an expert travel planner. Create a detailed ${days}-day travel itinerary.
+
+Destination: ${dest}
+Duration: ${days} days
+Travellers: ${travellers}
+Travel Style: ${style}
+Budget: ${budgetTxt}
+${notes ? 'Special notes: ' + notes : ''}
+
+Structure your response EXACTLY with these section headers:
+
+## ✈️ Trip Overview
+2-3 sentence summary of the trip, best time to visit, key highlights.
+
+## 📅 Day-by-Day Itinerary
+For EACH day (Day 1 through Day ${days}):
+
+### Day X: [Day Title]
+**Morning:** [specific activity with venue names]
+**Afternoon:** [specific activity with venue names]
+**Evening:** [dinner suggestion and evening activity]
+**Tip:** [one local insider tip]
+
+## 💰 Budget Breakdown
+Estimated daily cost in ${currency} as a markdown table:
+| Category | ${currency}/day/person |
+|---|---|
+| Accommodation | ... |
+| Food & Drinks | ... |
+| Transport | ... |
+| Activities | ... |
+| Miscellaneous | ... |
+| **Total** | **...** |
+
+## 🏨 Accommodation
+3 options across budget tiers with estimated price per night in ${currency}.
+
+## 🍽️ Must-Try Food
+5-7 must-try local dishes or food experiences.
+
+## 💡 Practical Tips
+6 tips covering transport, currency, language, safety, packing, and local etiquette.
+
+Use real venue/restaurant names. All content in English. Be specific and genuinely helpful.`;
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  CALL WORKER
+    // ══════════════════════════════════════════════════════
+    async function callWorker(prompt) {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+      if (!data.result) throw new Error('No content returned. Please try again.');
+      return data.result;
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  GENERATE
+    // ══════════════════════════════════════════════════════
+    async function generate() {
+      const dest = document.getElementById('dest').value.trim();
+      const errBox = document.getElementById('errBox');
+      errBox.classList.remove('show');
+
+      if (!dest) { errBox.textContent = 'Please enter a destination.'; errBox.classList.add('show'); return; }
+
+      const btn = document.getElementById('btnGen');
+      btn.disabled = true;
+      document.getElementById('loadingOverlay').classList.add('show');
+      startSteps();
+
+      try {
+        const prompt = buildPrompt();
+        const result = await callWorker(prompt);
+        currentRaw = result;
+        currentMeta = {
+          dest,
+          days: document.getElementById('days').value,
+          style: getStyle(),
+          currency: document.getElementById('currency').value,
+          travellers: document.getElementById('travellers').value,
+          budget: document.getElementById('budget').value,
+        };
+
+        renderResult(result, currentMeta);
+        switchPage('result');
+
+      } catch (err) {
+        let msg = err.message || 'Something went wrong.';
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) msg = 'Network error — check your connection and try again.';
+        errBox.textContent = msg;
+        errBox.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        stopSteps();
+        document.getElementById('loadingOverlay').classList.remove('show');
+      }
+    }
+
+    // enter key
+    document.getElementById('dest').addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+
+    // ══════════════════════════════════════════════════════
+    //  RENDER RESULT
+    // ══════════════════════════════════════════════════════
+    function renderResult(text, meta) {
+      document.getElementById('rTitle').textContent = `${meta.days}-Day ${meta.dest} Itinerary`;
+
+      const metaEl = document.getElementById('rMeta');
+      metaEl.innerHTML = [meta.days + ' Days', meta.dest, meta.style, meta.travellers, meta.currency]
+        .map(v => `<div class="pill"><span class="pill-dot"></span>${v}</div>`).join('');
+
+      // parse sections
+      const sections = parseSections(text);
+      const days = parseInt(meta.days);
+
+      const tabsEl = document.getElementById('dayTabs');
+      const panelsEl = document.getElementById('panels');
+      tabsEl.innerHTML = '';
+      panelsEl.innerHTML = '';
+
+      const tabDefs = [
+        { id: 'overview', label: 'Overview' },
+        ...Array.from({ length: days }, (_, i) => ({ id: `day${i + 1}`, label: `Day ${i + 1}` })),
+        { id: 'budget', label: 'Budget' },
+        { id: 'tips', label: 'Tips' },
+      ];
+
+      tabDefs.forEach((t, i) => {
+        const tab = document.createElement('div');
+        tab.className = 'dtab' + (i === 0 ? ' on' : '');
+        tab.textContent = t.label;
+        tab.onclick = () => {
+          document.querySelectorAll('.dtab').forEach(x => x.classList.remove('on'));
+          document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
+          tab.classList.add('on');
+          document.getElementById('panel-' + t.id).classList.add('on');
+        };
+        tabsEl.appendChild(tab);
+
+        const panel = document.createElement('div');
+        panel.className = 'panel ic' + (i === 0 ? ' on' : '');
+        panel.id = 'panel-' + t.id;
+        panel.innerHTML = buildPanelHTML(t.id, sections, days, meta.currency);
+        panelsEl.appendChild(panel);
+      });
+    }
+
+    function parseSections(text) {
+      const out = {};
+      const matches = [...text.matchAll(/^##\s+(.+)$/gm)];
+      matches.forEach((m, i) => {
+        const key = m[1].trim();
+        const start = m.index + m[0].length;
+        const end = i + 1 < matches.length ? matches[i + 1].index : text.length;
+        out[key] = text.slice(start, end).trim();
+      });
+      return out;
+    }
+
+    function buildPanelHTML(id, sections, days, currency) {
+      if (id === 'overview') {
+        const ovKey = Object.keys(sections).find(k => k.includes('Overview')) || '';
+        const acKey = Object.keys(sections).find(k => k.includes('Accommodation')) || '';
+        const fdKey = Object.keys(sections).find(k => k.includes('Food') || k.includes('Dishes')) || '';
+        let html = ovKey ? `<h2>✈️ Overview</h2>${md(sections[ovKey])}` : '';
+        html += acKey ? `<h2>🏨 Where to Stay</h2>${md(sections[acKey])}` : '';
+        html += fdKey ? `<h2>🍽️ Must-Try Food</h2>${md(sections[fdKey])}` : '';
+        return html || md(Object.values(sections)[0] || 'No overview available.');
+      }
+
+      if (id === 'budget') {
+        const bKey = Object.keys(sections).find(k => k.includes('Budget')) || '';
+        return bKey ? buildBudgetHTML(sections[bKey]) : '<p>No budget data.</p>';
+      }
+
+      if (id === 'tips') {
+        const tKey = Object.keys(sections).find(k => k.includes('Practical') || k.includes('Tips')) || '';
+        return tKey ? buildTipsHTML(sections[tKey]) : '<p>No tips available.</p>';
+      }
+
+      // day panels
+      const dayNum = parseInt(id.replace('day', ''));
+      const dayKey = Object.keys(sections).find(k => k.includes('Day-by-Day') || k.includes('Itinerary')) || '';
+      const dayText = sections[dayKey] || '';
+      const dayMatch = [...dayText.matchAll(/###\s+Day\s+(\d+)[:\s]+(.+?)(?=###\s+Day\s+\d+|$)/gsi)].find(m => parseInt(m[1]) === dayNum);
+      return dayMatch ? buildDayHTML(dayMatch[0]) : '<p>No data for this day.</p>';
+    }
+
+    function buildDayHTML(text) {
+      const parts = { Morning: '', Afternoon: '', Evening: '', Tip: '' };
+      ['Morning', 'Afternoon', 'Evening', 'Tip'].forEach((p, i, arr) => {
+        const next = arr[i + 1];
+        const rx = new RegExp(`\\*\\*${p}[:\\*]*\\*?\\s*(.+?)(?=\\*\\*(?:${next || 'ZZEND'})|$)`, 'si');
+        const m = text.match(rx);
+        if (m) parts[p] = m[1].trim();
+      });
+
+      const times = { Morning: '08:00', Afternoon: '13:00', Evening: '19:00' };
+      const hasSections = ['Morning', 'Afternoon', 'Evening'].some(p => parts[p]);
+
+      if (!hasSections) return `<div class="ic">${md(text)}</div>`;
+
+      let html = '<div class="tl">';
+      ['Morning', 'Afternoon', 'Evening'].forEach(p => {
+        if (!parts[p]) return;
+        html += `<div class="tl-item">
+      <div class="tl-time">${times[p]}</div>
+      <div class="tl-line-wrap">
+        <div class="tl-dot"></div>
+        <div class="tl-vline"></div>
+        <div class="tl-label">${p}</div>
+        <div class="tl-text">${parts[p].replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</div>
+        <span class="tl-tag">${p}</span>
+      </div>
+    </div>`;
+      });
+      html += '</div>';
+      if (parts.Tip) html += `<div class="tip-box"><strong>💡 Local Tip</strong>${parts.Tip}</div>`;
+      return html;
+    }
+
+    function buildBudgetHTML(text) {
+      const tableMatch = text.match(/\|.+\|[\s\S]+/);
+      if (tableMatch) {
+        const rows = tableMatch[0].trim().split('\n')
+          .filter(r => r.includes('|') && !r.match(/^\|[-:\s|]+\|$/));
+        if (rows.length > 1) {
+          const headers = rows[0].split('|').map(h => h.trim()).filter(Boolean);
+          let html = '<table class="btable"><thead><tr>';
+          headers.forEach(h => { html += `<th>${h}</th>`; });
+          html += '</tr></thead><tbody>';
+          rows.slice(1).forEach(row => {
+            const cells = row.split('|').map(c => c.trim()).filter(Boolean);
+            if (!cells.length) return;
+            html += '<tr>';
+            cells.forEach((c, i) => {
+              html += `<td${i > 0 ? ' class="amt"' : ''}>${c.replace(/\*\*/g, '')}</td>`;
+            });
+            html += '</tr>';
+          });
+          html += '</tbody></table>';
+          const before = text.slice(0, text.indexOf('|')).trim();
+          return (before ? `<p>${before}</p>` : '') + html;
+        }
+      }
+      return md(text);
+    }
+
+    function buildTipsHTML(text) {
+      const items = [...text.matchAll(/^[-*•\d.]+\s*(.+)$/gm)].map(m => m[1].trim());
+      if (items.length >= 3) {
+        const labels = ['Transport', 'Currency', 'Language', 'Safety', 'Packing', 'Etiquette', 'Tip', 'Note'];
+        let html = '<div class="tips-grid">';
+        items.slice(0, 8).forEach((item, i) => {
+          const ci = item.indexOf(':');
+          const bold = ci > 0 && ci < 30 ? item.slice(0, ci) : (labels[i] || 'Tip');
+          const body = ci > 0 && ci < 30 ? item.slice(ci + 1).trim() : item;
+          html += `<div class="tip-card"><strong>${bold.replace(/\*\*/g, '')}</strong>${body}</div>`;
         });
+        html += '</div>';
+        return html;
+      }
+      return md(text);
+    }
 
-        // --- 設定與常數 ---
-        // 您的 API Key
-        const apiKey = "AIzaSyDpFVyY4VHWwVJ8NgzWp0mtcHogLEjh9_s"; 
-        const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
-        
-        // 修正 API 檢查邏輯，只要有 API Key，就認為可以使用
-        const isApiReady = () => apiKey && apiKey !== "" && API_URL.includes(MODEL_NAME);
+    // minimal markdown renderer
+    function md(text) {
+      if (!text) return '';
+      return '<p>' + text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^###\s+(.+)$/gm, '</p><h3>$1</h3><p>')
+        .replace(/^##\s+(.+)$/gm, '</p><h2>$1</h2><p>')
+        .replace(/^[-*]\s+(.+)$/gm, '</p><li>$1</li><p>')
+        .replace(/\n{2,}/g, '</p><p>')
+        .replace(/<p><\/p>/g, '')
+        + '</p>';
+    }
 
-        // --- 模擬資料 (當 API 呼叫失敗或無 Key 時使用) ---
-        const MOCK_DATA = {
-            summary: "【演示資料】這是台北的範例行程。由於目前 API 連線中斷，系統顯示此範例供您參考介面效果。",
-            total_budget: 3500,
-            breakdown: [
-                { name: '住宿', value: 1500 },
-                { name: '餐飲', value: 850 },
-                { name: '購物', value: 800 },
-                { name: '交通', value: 350 },
-            ],
-            itinerary: [
-                { day: 1, date: "Day 1", activities: [
-                    { time: "10:00 - 11:30", type: "交通", title: "抵達台北 (範例)", description: "此為模擬資料，真實生成需連接 API", cost: 300, location: "桃園機場" },
-                    { time: "11:45 - 12:45", type: "住宿", title: "辦理入住", description: "放下行李，準備開始旅程", cost: 1500, location: "西門町飯店" },
-                    { time: "13:00 - 14:30", type: "美食", title: "永康街牛肉麵", description: "享用在地特色美食", cost: 150, location: "永康街" },
-                    { time: "15:00 - 17:00", type: "景點", title: "台北 101 觀光", description: "參觀城市最著名的地標", cost: 120, location: "信義區" },
-                ]},
-                { day: 2, date: "Day 2", activities: [
-                     { time: "09:00 - 10:00", type: "美食", title: "飯店早餐", description: "享用豐盛早餐", cost: 0, location: "飯店" },
-                     { time: "10:30 - 13:00", type: "購物", title: "信義區購物中心", description: "購買伴手禮與紀念品", cost: 500, location: "購物區" },
-                     { time: "13:30 - 15:00", type: "美食", title: "華山文創下午茶", description: "放鬆身心的午後", cost: 120, location: "華山" },
-                     { time: "16:00 - 18:00", type: "景點", title: "松山文創園區", description: "體驗當地文化與藝術", cost: 20, location: "文創區" },
-                ]},
-            ]
-        };
+    // ══════════════════════════════════════════════════════
+    //  SAVE / LOAD ITINERARIES
+    // ══════════════════════════════════════════════════════
+    function getSaved() {
+      try { return JSON.parse(localStorage.getItem('vt_saved') || '[]'); } catch { return []; }
+    }
+    function putSaved(arr) {
+      localStorage.setItem('vt_saved', JSON.stringify(arr));
+      updateSavedDot();
+    }
+    function updateSavedDot() {
+      const n = getSaved().length;
+      document.getElementById('savedDot').classList.toggle('show', n > 0);
+    }
 
-        const MOCK_PACKING_LIST = {
-            categories: [
-                { name: "重要文件", items: ["護照/身分證", "機票/車票證明", "現金 (TWD/外幣)"] },
-                { name: "衣物", items: ["換洗衣物", "好走的鞋", "外套", "睡衣"] },
-                { name: "電子產品", items: ["手機", "充電器/行動電源"] }
-            ]
-        };
-        const MOCK_TIPS = "💡 演示建議：這是一個範例提示。真正的 AI 建議會提供最佳拍照點、必點菜色或避開人潮時間！";
+    function saveItinerary() {
+      if (!currentRaw) return;
+      const saved = getSaved();
+      const id = Date.now().toString(36);
+      saved.unshift({
+        id,
+        title: `${currentMeta.days}-Day ${currentMeta.dest}`,
+        meta: currentMeta,
+        raw: currentRaw,
+        date: new Date().toLocaleDateString('en-MY', { year: 'numeric', month: 'short', day: 'numeric' })
+      });
+      if (saved.length > 50) saved.pop(); // cap at 50
+      putSaved(saved);
+      toast('✅ Itinerary saved!');
+    }
 
+    function renderSavedList() {
+      const list = document.getElementById('savedList');
+      const saved = getSaved();
+      if (!saved.length) {
+        list.innerHTML = `<div class="saved-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+      No saved trips yet.<br>Generate an itinerary and tap 💾 to save it.
+    </div>`;
+        return;
+      }
+      list.innerHTML = saved.map(s => `
+    <div class="saved-card" onclick="loadSaved('${s.id}')">
+      <div class="sc-title">${s.title}</div>
+      <div class="sc-meta">
+        ${[s.meta.style, s.meta.travellers, s.meta.currency].map(v => `<span class="sc-pill">${v}</span>`).join('')}
+      </div>
+      <div class="sc-date">${s.date}</div>
+      <div class="sc-actions" onclick="event.stopPropagation()">
+        <button class="sc-btn" title="Share" onclick="openShareSaved('${s.id}')">🔗</button>
+        <button class="sc-btn del" title="Delete" onclick="deleteSaved('${s.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+    }
 
-        // --- DOM 元素引用 ---
-        const destinationInput = document.getElementById('destination');
-        const daysInput = document.getElementById('days');
-        const budgetInput = document.getElementById('budget');
-        const currencySelect = document.getElementById('currency');
-        const styleInput = document.getElementById('style');
-        const generateButton = document.getElementById('generate-button');
-        const buttonText = document.getElementById('button-text');
-        const errorMessage = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
-        const initialState = document.getElementById('initial-state');
-        const loadingState = document.getElementById('loading-state');
-        const planOutput = document.getElementById('plan-output');
-        const apiWarning = document.getElementById('api-warning');
-        
-        // --- 狀態 ---
-        let currentPlan = null;
-        let isGenerating = false;
-        let currentFormData = {};
-        
-        // --- 輔助函式 ---
-        
-        // 渲染 Lucide 圖標的 HTML 輔助函式
-        const iconHtml = (iconName, classes = 'w-4 h-4') => {
-            return `<i data-lucide="${iconName}" class="${classes}"></i>`;
-        };
+    function loadSaved(id) {
+      const item = getSaved().find(s => s.id === id);
+      if (!item) return;
+      currentRaw = item.raw;
+      currentMeta = item.meta;
+      renderResult(item.raw, item.meta);
+      switchPage('result');
+    }
 
-        // 渲染活動標籤
-        const getTagHtml = (type) => {
-            const map = {
-                "交通": { icon: "train", color: "blue" },
-                "美食": { icon: "utensils", color: "orange" },
-                "景點": { icon: "camera", color: "emerald" },
-                "住宿": { icon: "hotel", color: "purple" },
-                "購物": { icon: "shopping-bag", color: "pink" },
-                "其他": { icon: "sparkles", color: "gray" },
-            };
-            const { icon, color } = map[type] || map["其他"];
-            
-            return `
-                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold border bg-${color}-100 text-${color}-700 border-${color}-200">
-                    ${iconHtml(icon, 'w-3 h-3 mr-1')} ${type}
-                </span>
-            `;
-        };
-        
-        // 渲染預算 breakdown (簡化為列表，不使用複雜圖表)
-        const renderBreakdown = (breakdown) => {
-            if (!breakdown || breakdown.length === 0) return '';
-            
-            const listItems = breakdown.map(item => `
-                <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                    <span class="text-gray-600 font-medium">${item.name}</span>
-                    <span class="text-indigo-600 font-bold">${currentFormData.currency} ${item.value.toLocaleString()}</span>
-                </div>
-            `).join('');
+    function deleteSaved(id) {
+      const arr = getSaved().filter(s => s.id !== id);
+      putSaved(arr);
+      renderSavedList();
+      toast('🗑️ Deleted');
+    }
 
-            return `
-                <div class="w-full md:w-2/3 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h4 class="text-lg font-bold text-gray-700 mb-3">預算分佈</h4>
-                    ${listItems}
-                </div>
-            `;
-        };
+    // ══════════════════════════════════════════════════════
+    //  SHARE
+    // ══════════════════════════════════════════════════════
+    function buildShareUrl() {
+      const base = 'https://neilson2005.github.io/travelai/';
+      const params = new URLSearchParams({
+        dest: currentMeta.dest || '',
+        days: currentMeta.days || '5',
+        style: currentMeta.style || '',
+      });
+      return base + '?' + params.toString();
+    }
 
-        // 渲染行程時間軸
-        const renderItinerary = (itinerary) => {
-            if (!itinerary || itinerary.length === 0) return '';
-            
-            return itinerary.map((dayPlan, dayIndex) => {
-                const activitiesHtml = dayPlan.activities.map((activity, actIndex) => {
-                    const costHtml = activity.cost > 0 
-                        ? `<span class="flex items-center gap-1.5 font-medium text-xs text-gray-600 px-2 py-1 bg-yellow-50 rounded-md">${iconHtml('dollar-sign', 'w-3 h-3 text-yellow-600')} ${currentFormData.currency} ${activity.cost.toLocaleString()}</span>`
-                        : `<span class="flex items-center gap-1.5 font-medium text-xs text-emerald-600 px-2 py-1 bg-emerald-50 rounded-md">${iconHtml('sparkles', 'w-3 h-3')} 免費</span>`;
-                    
-                    return `
-                        <div class="relative pl-10">
-                            <!-- 時間軸圓點 -->
-                            <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm z-10"></div>
-                            
-                            <div class="pb-10">
-                                <div class="flex flex-wrap items-center gap-2 mb-2">
-                                    <span class="text-sm font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded">${activity.time}</span>
-                                    ${getTagHtml(activity.type)}
-                                </div>
-                                <h4 class="text-lg font-bold text-gray-800 mb-2">${activity.title}</h4>
-                                <p class="text-gray-600 text-sm mb-3 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100 inline-block w-full">${activity.description}</p>
-                                
-                                <div class="flex flex-wrap items-center gap-4 mt-1">
-                                    <span class="flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md text-xs text-gray-500">
-                                        ${iconHtml('map-pin', 'w-3 h-3 text-gray-400')} ${activity.location}
-                                    </span>
-                                    ${costHtml}
-                                    <button onclick="showTips('${activity.title}', '${activity.location}')" class="text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all shadow-sm">
-                                        ${iconHtml('lightbulb', 'w-3 h-3')} 達人攻略
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+    function openShare() {
+      if (!currentRaw) return;
+      const url = buildShareUrl();
+      document.getElementById('shareUrl').value = url;
+      document.getElementById('shareSheet').classList.add('show');
+    }
 
-                return `
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                                <span class="bg-indigo-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm">${dayPlan.day}</span>
-                                第 ${dayPlan.day} 天
-                            </h3>
-                            <div class="text-sm font-medium text-gray-400 bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">${dayPlan.date || `Day ${dayPlan.day}`}</div>
-                        </div>
-                        
-                        <div class="p-6 md:p-8">
-                            <div class="relative border-l-2 border-indigo-100 ml-3 md:ml-4 space-y-10 pb-2">
-                                ${activitiesHtml}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        };
+    function openShareSaved(id) {
+      const item = getSaved().find(s => s.id === id);
+      if (!item) return;
+      currentMeta = item.meta;
+      currentRaw = item.raw;
+      openShare();
+    }
 
-        // 核心渲染函式：將 JSON 數據轉換為 HTML
-        const renderPlan = (plan) => {
-            planOutput.innerHTML = `
-                <!-- 1. Header & Summary -->
-                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden">
-                   <div class="absolute top-0 right-0 p-6 opacity-10">
-                      <i data-lucide="sparkles" class="text-indigo-600 w-32 h-32"></i>
-                   </div>
-                   
-                   <div class="relative z-10">
-                      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
-                          ✨ 您的專屬行程
-                        </h2>
-                        
-                        <div class="flex gap-2 w-full md:w-auto">
-                          <button onclick="showPackingList()" class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-sm font-bold hover:bg-emerald-100 transition-colors border border-emerald-100">
-                            ${iconHtml('list-checks', 'w-4 h-4')}
-                            行李清單
-                          </button>
-                        </div>
-                      </div>
-                      <p class="text-lg text-gray-600 leading-relaxed mb-8 font-medium">
-                        ${plan.summary}
-                      </p>
-                      
-                      <div class="flex flex-col md:flex-row gap-8 items-start bg-gray-50 rounded-2xl p-6">
-                        <div class="w-full md:w-1/3 text-center md:text-left md:pl-4">
-                          <span class="text-sm text-gray-400 uppercase tracking-wider font-bold">預估總花費</span>
-                          <div class="text-4xl font-black text-indigo-600 mt-1 tracking-tight flex items-baseline gap-1">
-                            <span class="text-xl font-bold text-indigo-400">${currentFormData.currency}</span>
-                            ${plan.total_budget.toLocaleString()}
-                          </div>
-                          <div class="text-xs text-gray-400 mt-2">包含食宿與交通預估</div>
-                        </div>
-                        <!-- 預算 breakdown 列表 -->
-                        ${renderBreakdown(plan.breakdown)}
-                      </div>
-                   </div>
-                </div>
+    function closeShare(e) {
+      if (!e || e.target === document.getElementById('shareSheet')) {
+        document.getElementById('shareSheet').classList.remove('show');
+      }
+    }
 
-                <!-- 2. 每日時間軸 -->
-                <div class="space-y-6">
-                    ${renderItinerary(plan.itinerary)}
-                </div>
-            `;
-            // FIX: 在動態內容渲染後，安全地重新初始化所有 Lucide 圖標
-            if (typeof lucide !== 'undefined') {
-                 lucide.createIcons();
-            }
-            planOutput.classList.remove('hidden');
-        };
+    async function shareVia(method) {
+      const url = buildShareUrl();
+      const title = `My ${currentMeta.days}-Day ${currentMeta.dest} Trip — Vibe Travel`;
+      const text = `Check out my AI-planned trip to ${currentMeta.dest}!\n\n${url}`;
 
-        // --- API 核心函式 ---
+      if (method === 'native' && navigator.share) {
+        try { await navigator.share({ title, text, url }); } catch { }
+        closeShare();
+        return;
+      }
+      if (method === 'whatsapp') {
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+        closeShare(); return;
+      }
+      if (method === 'copy') {
+        await navigator.clipboard.writeText(url).catch(() => { });
+        toast('🔗 Link copied!'); closeShare(); return;
+      }
+      if (method === 'text') {
+        await navigator.clipboard.writeText(currentRaw).catch(() => { });
+        toast('📋 Text copied!'); closeShare(); return;
+      }
+    }
 
-        // 輔助函式：使用指數退避進行 Fetch 請求
-        const exponentialBackoffFetch = async (url, options, maxRetries = 5) => {
-            let lastError = null;
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response;
-                } catch (error) {
-                    lastError = error;
-                    if (i < maxRetries - 1) {
-                        const delay = Math.pow(2, i) * 1000 + Math.random() * 500;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                    }
-                }
-            }
-            throw new Error(`Failed to fetch from Gemini API after multiple retries. Last error: ${lastError.message}`);
-        };
+    async function copyRaw() {
+      if (!currentRaw) return;
+      await navigator.clipboard.writeText(currentRaw).catch(() => { });
+      toast('📋 Copied to clipboard!');
+    }
 
-        const callGeminiApi = async (prompt, systemInstruction) => {
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] },
-            };
+    // ══════════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════════
+    updateSavedDot();
+  </script>
 
-            try {
-                const response = await exponentialBackoffFetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    let text = candidate.content.parts[0].text;
-                    // 移除所有 markdown code block 標記
-                    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-                    return text;
-                } else {
-                    console.error("Gemini response is invalid or missing content:", result);
-                    throw new Error("AI response structure is invalid.");
-                }
-            } catch (error) {
-                console.error("Error during callGeminiApi:", error);
-                throw new Error("連線失敗或 AI 回傳格式有誤。");
-            }
-        };
-
-        // --- 行程生成與流程控制 ---
-        
-        const generatePrompt = () => {
-            const { destination, days, budget, currency, style } = currentFormData;
-            return `
-                你是一個專業旅遊規劃師。請規劃 ${days} 天的 ${destination} 旅遊。
-                風格：${style}，總預算約 ${budget} ${currency}。
-                
-                請嚴格只回傳一個有效的 JSON 物件，不要使用 Markdown code block 標記 (不要有 \`\`\`json)。
-                請確保所有欄位都存在且格式正確。
-                
-                JSON 結構需求：
-                {
-                  "summary": "一句話吸引人的總結 (繁體中文)",
-                  "total_budget": 總金額數字 (Number),
-                  "breakdown": [{"name": "類別名稱(如住宿)", "value": 金額(Number)}],
-                  "itinerary": [
-                    { 
-                      "day": 1, 
-                      "date": "Day 1", 
-                      "activities": [
-                        { 
-                          "time": "10:00 - 12:00", 
-                          "title": "活動名稱", 
-                          "type": "交通/美食/景點/住宿/購物/其他", 
-                          "cost": 預估花費(Number), 
-                          "description": "簡介", 
-                          "location": "地點" 
-                        }
-                      ] 
-                    }
-                  ]
-                }
-            `;
-        }
-
-        const handleGeneratePlan = async (e) => {
-            e.preventDefault();
-
-            // 1. 更新狀態並驗證
-            currentFormData = {
-                destination: destinationInput.value.trim(),
-                days: parseInt(daysInput.value, 10),
-                budget: parseInt(budgetInput.value, 10),
-                currency: currencySelect.value,
-                style: styleInput.value.trim()
-            };
-
-            if (!currentFormData.destination || currentFormData.days < 1 || currentFormData.budget < 0) {
-                showError("請填寫所有必要的欄位。");
-                return;
-            }
-
-            // 2. 顯示加載狀態
-            isGenerating = true;
-            generateButton.disabled = true;
-            generateButton.classList.remove('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'hover:brightness-110');
-            generateButton.classList.add('bg-slate-400', 'cursor-not-allowed');
-            // FIX: 確保 iconHtml 在按鈕更新時能被正確呼叫
-            buttonText.innerHTML = `${iconHtml('loader-2', 'w-5 h-5 animate-spin')} 規劃行程中...`;
-            hideError();
-            initialState.classList.add('hidden');
-            planOutput.classList.add('hidden');
-            loadingState.classList.remove('hidden');
-
-            // 確保警告信息被隱藏（因為現在有 Key）
-            apiWarning.classList.add('hidden');
-
-
-            try {
-                let planData;
-                const systemInstruction = "你是一個專業的旅遊規劃師。你的唯一輸出必須是一個符合 JSON 結構需求的物件，不得包含任何額外的文字或Markdown格式（如```json）。";
-
-                if (isApiReady()) {
-                    const prompt = generatePrompt();
-                    const text = await callGeminiApi(prompt, systemInstruction);
-                    planData = JSON.parse(text);
-                } else {
-                    apiWarning.classList.remove('hidden');
-                    // 使用模擬數據
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    planData = MOCK_DATA;
-                }
-                
-                currentPlan = planData;
-                renderPlan(planData);
-
-            } catch (error) {
-                console.error("生成行程失敗:", error);
-                showError(`無法生成行程: ${error.message || '連線錯誤。'}`);
-                
-                // 失敗時使用模擬數據作為 fallback
-                currentPlan = MOCK_DATA;
-                renderPlan(MOCK_DATA);
-                apiWarning.classList.remove('hidden'); // 呼叫失敗時重新顯示警告
-            } finally {
-                // 3. 恢復按鈕狀態
-                isGenerating = false;
-                generateButton.disabled = false;
-                generateButton.classList.remove('bg-slate-400', 'cursor-not-allowed');
-                generateButton.classList.add('bg-gradient-to-r', 'from-indigo-600', 'to-purple-600', 'hover:brightness-110');
-                buttonText.innerHTML = `${iconHtml('sparkles', 'w-5 h-5 animate-pulse')} 開始 AI 規劃`;
-                loadingState.classList.add('hidden');
-                
-                // FIX: 安全地重新初始化所有 Lucide 圖標 (為了 button 上的圖標)
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            }
-        };
-
-        // --- Modal 相關功能 ---
-        const modalBackdrop = document.getElementById('modal-backdrop');
-        const modalContentContainer = document.getElementById('modal-content-container');
-
-        const openModal = (title, contentHtml) => {
-            modalContentContainer.innerHTML = `
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        ${title}
-                    </h3>
-                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 p-2 rounded-full transition-all">
-                        ${iconHtml('x', 'w-5 h-5')}
-                    </button>
-                </div>
-                <div class="p-6 overflow-y-auto custom-scrollbar">
-                    ${contentHtml}
-                </div>
-                <div class="p-4 border-t border-gray-100 text-right bg-white">
-                    <button onclick="closeModal()" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                        關閉
-                    </button>
-                </div>
-            `;
-            modalBackdrop.classList.remove('hidden');
-            // FIX: 安全地重新渲染 Modal 內的圖標
-            if (typeof lucide !== 'undefined') {
-                 lucide.createIcons(); 
-            }
-        };
-
-        const closeModal = () => {
-            modalBackdrop.classList.add('hidden');
-        };
-
-        window.showPackingList = async () => {
-            const packingTitle = `${iconHtml('list-checks', 'w-5 h-5 text-emerald-500')} 行李清單`;
-            const loadingHtml = `
-                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
-                    ${iconHtml('loader-2', 'w-10 h-10 animate-spin text-emerald-500 mb-4')}
-                    <p>正在根據您的目的地與風格分析所需物品...</p>
-                </div>
-            `;
-            openModal(packingTitle, loadingHtml);
-
-            try {
-                let listData;
-                if (isApiReady()) {
-                    // 為了簡化，這裡仍然使用模擬數據，因為生成清單需要另一個 API 呼叫和結構解析，
-                    // 而核心功能是行程規劃。實際應用中，應在此處調用 API。
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    listData = MOCK_PACKING_LIST;
-                } else {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    listData = MOCK_PACKING_LIST;
-                }
-
-                const listHtml = `
-                    <div class="space-y-6">
-                        <p class="text-sm text-gray-500 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-                            ✈️ 這是為您的 <strong>${currentFormData.destination} ${currentFormData.days}天</strong> 之旅準備的建議清單。
-                        </p>
-                        ${listData.categories.map((cat, idx) => `
-                            <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
-                                <div class="bg-gray-50 px-4 py-2 font-bold text-gray-700 border-b border-gray-100 flex items-center gap-2">
-                                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                    ${cat.name}
-                                </div>
-                                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    ${cat.items.map((item, itemIdx) => `
-                                        <div class="flex items-center gap-2 text-sm text-gray-600">
-                                            <input type="checkbox" class="rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer" />
-                                            <span>${item}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                openModal(packingTitle, listHtml);
-
-            } catch (e) {
-                openModal(packingTitle, '<div class="text-center py-8 text-red-500">生成清單失敗。</div>');
-            }
-        };
-
-        window.showTips = async (activityTitle, location) => {
-             const tipsTitle = `${iconHtml('lightbulb', 'w-5 h-5 text-amber-500 fill-amber-100')} ${activityTitle} 達人攻略`;
-             const loadingHtml = `
-                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
-                    ${iconHtml('loader-2', 'w-10 h-10 animate-spin text-amber-500 mb-4')}
-                    <p>正在尋找最佳攻略...</p>
-                </div>
-            `;
-             openModal(tipsTitle, loadingHtml);
-
-             // 這裡直接使用模擬數據，因為真正的 tips 獲取需要另一個 API 呼叫
-             await new Promise(resolve => setTimeout(resolve, 800));
-             const tipsContent = `<div class="text-gray-700 leading-relaxed text-lg p-2">${MOCK_TIPS}</div>`;
-             openModal(tipsTitle, tipsContent);
-        };
-        
-        // --- 錯誤處理 ---
-        const showError = (message) => {
-            errorText.textContent = message;
-            errorMessage.classList.remove('hidden');
-        };
-
-        const hideError = () => {
-            errorMessage.classList.add('hidden');
-            errorText.textContent = '';
-        };
-
-        // --- 事件監聽器 ---
-        document.getElementById('plan-form').addEventListener('submit', handleGeneratePlan);
-        
-        // 檢查 API 狀態並顯示警告
-        // 由於您提供了 API Key，我們假設 API 是可用的，因此除非呼叫失敗，否則應隱藏警告。
-        if (!isApiReady()) {
-             // 只有在 API Key 實際上沒有被設置時才顯示警告（例如在開發環境）
-             apiWarning.classList.remove('hidden');
-        } else {
-             apiWarning.classList.add('hidden');
-        }
-
-    </script>
 </body>
+
 </html>
