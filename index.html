@@ -1,1659 +1,1001 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#080b12" />
-  <meta name="description" content="AI-powered travel itinerary planner. Plan any trip in seconds with Gemini AI." />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="VibeTravl" />
-  <meta name="mobile-web-app-capable" content="yes" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#080b12"/>
+<meta name="description" content="AI-powered travel itinerary planner. Plan any trip in seconds with Gemini AI."/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="VibeTravl"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 
-  <!-- Open Graph for share previews -->
-  <meta property="og:title" content="Vibe Travel — AI Itinerary Planner" />
-  <meta property="og:description" content="Plan your perfect trip with Gemini AI" />
-  <meta property="og:url" content="https://neilson2005.github.io/travelai/" />
-  <meta property="og:type" content="website" />
+<!-- Open Graph for share previews -->
+<meta property="og:title" content="Vibe Travel — AI Itinerary Planner"/>
+<meta property="og:description" content="Plan your perfect trip with Gemini AI"/>
+<meta property="og:url" content="https://neilson2005.github.io/travelai/"/>
+<meta property="og:type" content="website"/>
 
-  <title>Vibe Travel</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<title>Vibe Travel</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"/>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap"
-    rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
-  <style>
-    /* ═══════════════════════════════════════════════
+<style>
+/* ═══════════════════════════════════════════════
    TOKENS
 ═══════════════════════════════════════════════ */
-    :root {
-      --bg: #080b12;
-      --bg2: #0e1220;
-      --surface: #131826;
-      --surface2: #1c2235;
-      --surface3: #242b40;
-      --border: rgba(255, 255, 255, 0.06);
-      --border-hi: rgba(212, 175, 95, 0.35);
-      --gold: #d4af5f;
-      --gold-lt: #e8cc88;
-      --gold-dim: rgba(212, 175, 95, 0.12);
-      --gold-glow: rgba(212, 175, 95, 0.22);
-      --sky: #89c4d8;
-      --mint: #78d5b8;
-      --coral: #e07c6a;
-      --text: #eaecf3;
-      --muted: #6b748f;
-      --success: #5ecf94;
-      --danger: #e06a6a;
-      --r: 16px;
-      --r-sm: 10px;
-      --r-xs: 6px;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bot: env(safe-area-inset-bottom, 0px);
-    }
+:root {
+  --bg:        #080b12;
+  --bg2:       #0e1220;
+  --surface:   #131826;
+  --surface2:  #1c2235;
+  --surface3:  #242b40;
+  --border:    rgba(255,255,255,0.06);
+  --border-hi: rgba(212,175,95,0.35);
+  --gold:      #d4af5f;
+  --gold-lt:   #e8cc88;
+  --gold-dim:  rgba(212,175,95,0.12);
+  --gold-glow: rgba(212,175,95,0.22);
+  --sky:       #89c4d8;
+  --mint:      #78d5b8;
+  --coral:     #e07c6a;
+  --text:      #eaecf3;
+  --muted:     #6b748f;
+  --success:   #5ecf94;
+  --danger:    #e06a6a;
+  --r:         16px;
+  --r-sm:      10px;
+  --r-xs:      6px;
+  --safe-top:  env(safe-area-inset-top, 0px);
+  --safe-bot:  env(safe-area-inset-bottom, 0px);
+}
 
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    RESET & BASE
 ═══════════════════════════════════════════════ */
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent
-    }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;height:100%}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-x:hidden;
+  padding-top:var(--safe-top);
+}
 
-    html {
-      scroll-behavior: smooth;
-      height: 100%
-    }
+/* grain overlay */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
 
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      padding-top: var(--safe-top);
-    }
+/* ambient orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;}
+.orb-1{width:500px;height:500px;top:-180px;left:-120px;background:radial-gradient(circle,rgba(212,175,95,.07),transparent 70%);}
+.orb-2{width:420px;height:420px;bottom:-80px;right:-80px;background:radial-gradient(circle,rgba(137,196,216,.07),transparent 70%);}
 
-    /* grain overlay */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ambient orbs */
-    .orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(100px);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .orb-1 {
-      width: 500px;
-      height: 500px;
-      top: -180px;
-      left: -120px;
-      background: radial-gradient(circle, rgba(212, 175, 95, .07), transparent 70%);
-    }
-
-    .orb-2 {
-      width: 420px;
-      height: 420px;
-      bottom: -80px;
-      right: -80px;
-      background: radial-gradient(circle, rgba(137, 196, 216, .07), transparent 70%);
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    BOTTOM NAV (PWA Nav)
 ═══════════════════════════════════════════════ */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: rgba(8, 11, 18, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border);
-      display: flex;
-      padding-bottom: var(--safe-bot);
-    }
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(8,11,18,0.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:var(--safe-bot);
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 0 8px;
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:0.04em;text-transform:uppercase;
+  transition:color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-btn.active{color:var(--gold);}
+.nav-btn svg{width:20px;height:20px;}
+.nav-dot{
+  position:absolute;top:8px;right:calc(50% - 14px);
+  width:6px;height:6px;border-radius:50%;background:var(--coral);
+  display:none;
+}
+.nav-dot.show{display:block;}
 
-    .nav-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      padding: 10px 0 8px;
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      transition: color .2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .nav-btn.active {
-      color: var(--gold);
-    }
-
-    .nav-btn svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    .nav-dot {
-      position: absolute;
-      top: 8px;
-      right: calc(50% - 14px);
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--coral);
-      display: none;
-    }
-
-    .nav-dot.show {
-      display: block;
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    PAGES
 ═══════════════════════════════════════════════ */
-    .page {
-      display: none;
-      min-height: 100dvh;
-      padding: 0 0 calc(80px + var(--safe-bot));
-      position: relative;
-      z-index: 1;
-    }
+.page{
+  display:none;
+  min-height:100dvh;
+  padding:0 0 calc(80px + var(--safe-bot));
+  position:relative;z-index:1;
+}
+.page.active{display:block;}
 
-    .page.active {
-      display: block;
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    PAGE: PLAN
 ═══════════════════════════════════════════════ */
-    .plan-header {
-      padding: clamp(32px, 8vw, 56px) 20px 0;
-      text-align: center;
-      animation: fadeDown .6s ease both;
-    }
+.plan-header{
+  padding:clamp(32px,8vw,56px) 20px 0;
+  text-align:center;
+  animation:fadeDown .6s ease both;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--gold-dim);border:1px solid var(--gold-glow);
+  color:var(--gold);font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border-radius:100px;margin-bottom:18px;
+}
+.app-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3rem,12vw,5.5rem);
+  font-weight:300;line-height:.95;
+  letter-spacing:-.01em;color:var(--text);
+  margin-bottom:4px;
+}
+.app-title em{font-style:italic;color:var(--gold);}
+.app-sub{
+  color:var(--muted);font-size:13px;font-weight:300;
+  max-width:340px;margin:12px auto 0;line-height:1.6;
+}
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--gold-dim);
-      border: 1px solid var(--gold-glow);
-      color: var(--gold);
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      padding: 4px 14px;
-      border-radius: 100px;
-      margin-bottom: 18px;
-    }
+/* form card */
+.form-wrap{
+  max-width:480px;margin:28px auto 0;padding:0 16px;
+  animation:fadeUp .6s ease both .15s;
+}
+.form-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:24px 20px;
+}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.field:last-of-type{margin-bottom:0;}
+label{
+  font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+}
+input[type=text],input[type=number],select,textarea{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:15px;
+  padding:12px 14px;outline:none;width:100%;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;appearance:none;
+}
+input::placeholder,textarea::placeholder{color:var(--muted);}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px var(--gold-dim);
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b748f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+  padding-right:38px;cursor:pointer;
+}
+select option{background:var(--surface2);}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.budget-row{display:grid;grid-template-columns:1fr 90px;gap:10px;}
 
-    .app-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(3rem, 12vw, 5.5rem);
-      font-weight: 300;
-      line-height: .95;
-      letter-spacing: -.01em;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
+/* style chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:100px;color:var(--muted);
+  font-size:12px;font-weight:500;padding:6px 14px;
+  cursor:pointer;transition:all .18s;user-select:none;
+}
+.chip:hover{border-color:var(--gold-glow);color:var(--text);}
+.chip.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
 
-    .app-title em {
-      font-style: italic;
-      color: var(--gold);
-    }
+/* generate button */
+.btn-gen{
+  width:100%;background:var(--gold);color:#080b12;
+  border:none;border-radius:var(--r-sm);
+  font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;
+  padding:15px;cursor:pointer;margin-top:20px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  position:relative;overflow:hidden;
+  transition:transform .15s,box-shadow .2s,opacity .2s;
+}
+.btn-gen:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px var(--gold-glow);}
+.btn-gen:active:not(:disabled){transform:translateY(0);}
+.btn-gen:disabled{opacity:.45;cursor:not-allowed;}
+.btn-gen::after{
+  content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+  transition:left .55s;
+}
+.btn-gen:hover::after{left:150%;}
 
-    .app-sub {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 300;
-      max-width: 340px;
-      margin: 12px auto 0;
-      line-height: 1.6;
-    }
+/* error */
+.err{
+  display:none;
+  background:rgba(224,106,106,.1);border:1px solid rgba(224,106,106,.3);
+  border-radius:var(--r-sm);padding:12px 16px;margin-top:14px;
+  color:var(--danger);font-size:13px;line-height:1.5;
+}
+.err.show{display:block;}
 
-    /* form card */
-    .form-wrap {
-      max-width: 480px;
-      margin: 28px auto 0;
-      padding: 0 16px;
-      animation: fadeUp .6s ease both .15s;
-    }
-
-    .form-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 24px 20px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      margin-bottom: 16px;
-    }
-
-    .field:last-of-type {
-      margin-bottom: 0;
-    }
-
-    label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    input[type=text],
-    input[type=number],
-    select,
-    textarea {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      color: var(--text);
-      font-family: 'Outfit', sans-serif;
-      font-size: 15px;
-      padding: 12px 14px;
-      outline: none;
-      width: 100%;
-      transition: border-color .2s, box-shadow .2s;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: var(--muted);
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px var(--gold-dim);
-    }
-
-    select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b748f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      padding-right: 38px;
-      cursor: pointer;
-    }
-
-    select option {
-      background: var(--surface2);
-    }
-
-    .row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .budget-row {
-      display: grid;
-      grid-template-columns: 1fr 90px;
-      gap: 10px;
-    }
-
-    /* style chips */
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 6px 14px;
-      cursor: pointer;
-      transition: all .18s;
-      user-select: none;
-    }
-
-    .chip:hover {
-      border-color: var(--gold-glow);
-      color: var(--text);
-    }
-
-    .chip.on {
-      background: var(--gold-dim);
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    /* generate button */
-    .btn-gen {
-      width: 100%;
-      background: var(--gold);
-      color: #080b12;
-      border: none;
-      border-radius: var(--r-sm);
-      font-family: 'Outfit', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      padding: 15px;
-      cursor: pointer;
-      margin-top: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      position: relative;
-      overflow: hidden;
-      transition: transform .15s, box-shadow .2s, opacity .2s;
-    }
-
-    .btn-gen:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px var(--gold-glow);
-    }
-
-    .btn-gen:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .btn-gen:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-    }
-
-    .btn-gen::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 55%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent);
-      transition: left .55s;
-    }
-
-    .btn-gen:hover::after {
-      left: 150%;
-    }
-
-    /* error */
-    .err {
-      display: none;
-      background: rgba(224, 106, 106, .1);
-      border: 1px solid rgba(224, 106, 106, .3);
-      border-radius: var(--r-sm);
-      padding: 12px 16px;
-      margin-top: 14px;
-      color: var(--danger);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .err.show {
-      display: block;
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    LOADING OVERLAY
 ═══════════════════════════════════════════════ */
-    .loading {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      background: rgba(8, 11, 18, .92);
-      backdrop-filter: blur(12px);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
+.loading{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(8,11,18,.92);backdrop-filter:blur(12px);
+  flex-direction:column;align-items:center;justify-content:center;gap:20px;
+}
+.loading.show{display:flex;}
+.ring{
+  width:52px;height:52px;
+  border:2px solid var(--border);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .75s linear infinite;
+}
+.load-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem;font-weight:300;color:var(--text);
+}
+.load-steps{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px;}
+.load-step{font-size:12px;color:var(--muted);opacity:0;animation:stepIn .4s ease both;}
+.load-step.on{color:var(--gold-lt);opacity:1;}
 
-    .loading.show {
-      display: flex;
-    }
-
-    .ring {
-      width: 52px;
-      height: 52px;
-      border: 2px solid var(--border);
-      border-top-color: var(--gold);
-      border-radius: 50%;
-      animation: spin .75s linear infinite;
-    }
-
-    .load-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
-      font-weight: 300;
-      color: var(--text);
-    }
-
-    .load-steps {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .load-step {
-      font-size: 12px;
-      color: var(--muted);
-      opacity: 0;
-      animation: stepIn .4s ease both;
-    }
-
-    .load-step.on {
-      color: var(--gold-lt);
-      opacity: 1;
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    RESULT VIEW
 ═══════════════════════════════════════════════ */
-    .result-wrap {
-      display: none;
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 20px 16px calc(90px + var(--safe-bot));
-      animation: fadeUp .5s ease both;
-    }
+.result-wrap{
+  display:none;max-width:480px;margin:0 auto;
+  padding:20px 16px calc(90px + var(--safe-bot));
+  animation:fadeUp .5s ease both;
+}
+.result-wrap.show{display:block;}
 
-    .result-wrap.show {
-      display: block;
-    }
+.result-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;gap:10px;
+}
+.btn-back{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);border-radius:var(--r-sm);
+  font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
+  padding:8px 16px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:all .2s;flex-shrink:0;
+}
+.btn-back:hover{border-color:var(--border-hi);color:var(--gold);}
 
-    .result-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      gap: 10px;
-    }
+.action-btns{display:flex;gap:8px;}
+.btn-icon-action{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);border-radius:var(--r-sm);
+  width:38px;height:38px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;
+  font-size:16px;
+}
+.btn-icon-action:hover{border-color:var(--border-hi);color:var(--gold);}
 
-    .btn-back {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: var(--r-sm);
-      font-family: 'Outfit', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 8px 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all .2s;
-      flex-shrink: 0;
-    }
+.result-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.6rem,5vw,2rem);font-weight:400;
+  color:var(--text);line-height:1.2;margin-bottom:10px;
+}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.pill{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:100px;font-size:11px;font-weight:500;
+  color:var(--muted);padding:4px 12px;
+  display:flex;align-items:center;gap:5px;
+}
+.pill-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);}
 
-    .btn-back:hover {
-      border-color: var(--border-hi);
-      color: var(--gold);
-    }
+/* day tabs */
+.day-tabs-wrap{position:relative;}
+.day-tabs{
+  display:flex;overflow-x:auto;gap:4px;
+  padding:0 0 2px;margin-bottom:16px;
+  scrollbar-width:none;
+}
+.day-tabs::-webkit-scrollbar{display:none;}
+.dtab{
+  flex-shrink:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--muted);
+  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+  padding:7px 14px;cursor:pointer;
+  transition:all .18s;white-space:nowrap;
+}
+.dtab:hover{border-color:var(--border-hi);color:var(--text);}
+.dtab.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
 
-    .action-btns {
-      display: flex;
-      gap: 8px;
-    }
+/* panels */
+.panel{display:none;}
+.panel.on{display:block;}
 
-    .btn-icon-action {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: var(--r-sm);
-      width: 38px;
-      height: 38px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all .2s;
-      flex-shrink: 0;
-      font-size: 16px;
-    }
+/* itinerary content rendering */
+.ic h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:400;color:var(--gold-lt);
+  margin:24px 0 10px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.ic h2:first-child{margin-top:0;}
+.ic h3{font-size:13px;font-weight:600;color:var(--sky);margin:16px 0 6px;}
+.ic p{font-size:14px;line-height:1.75;color:var(--text);opacity:.87;margin-bottom:8px;}
+.ic ul,.ic ol{padding-left:18px;margin-bottom:10px;}
+.ic li{font-size:14px;line-height:1.7;color:var(--text);opacity:.83;margin-bottom:3px;}
+.ic strong{font-weight:600;color:var(--text);opacity:1;}
 
-    .btn-icon-action:hover {
-      border-color: var(--border-hi);
-      color: var(--gold);
-    }
+/* ── TIMELINE ── */
+.tl{display:flex;flex-direction:column;}
+.tl-item{
+  padding:14px 0;
+  border-bottom:1px solid var(--border);position:relative;
+  transition:opacity .3s;
+}
+.tl-item:last-child{border-bottom:none;}
+.tl-item.done{opacity:.45;}
+.tl-item.done .tl-text{text-decoration:line-through;}
+.tl-item.deleted{display:none;}
 
-    .result-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(1.6rem, 5vw, 2rem);
-      font-weight: 400;
-      color: var(--text);
-      line-height: 1.2;
-      margin-bottom: 10px;
-    }
+/* top row: time + label + actions */
+.tl-top{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:8px;
+}
+.tl-time{
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--muted);flex-shrink:0;min-width:38px;
+}
+.tl-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+  background:var(--gold);border:2px solid var(--bg);
+}
+.tl-label{
+  font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted);flex:1;
+}
+/* checkbox */
+.tl-check{
+  width:20px;height:20px;border-radius:6px;
+  border:1.5px solid var(--border);
+  background:var(--bg2);cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s;font-size:11px;
+}
+.tl-check:hover{border-color:var(--success);}
+.tl-check.checked{background:var(--success);border-color:var(--success);color:#080b12;}
+/* action buttons */
+.tl-actions{display:flex;gap:6px;flex-shrink:0;}
+.tl-btn{
+  width:28px;height:28px;border-radius:var(--r-xs);
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--muted);cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s;
+}
+.tl-btn:hover{border-color:var(--border-hi);color:var(--gold);}
+.tl-btn.del-btn:hover{border-color:rgba(224,106,106,.4);color:var(--danger);}
 
-    .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
+/* activity content */
+.tl-body{padding-left:17px;}
+.tl-text{font-size:13px;line-height:1.65;color:var(--text);opacity:.85;margin-bottom:6px;}
+.tl-tag{
+  display:inline-block;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;font-size:9px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--mint);
+  padding:2px 7px;
+}
 
-    .pill {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--muted);
-      padding: 4px 12px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+/* comment box */
+.tl-comment-wrap{
+  display:none;margin-top:10px;padding-left:17px;
+}
+.tl-comment-wrap.show{display:block;}
+.tl-comment-input{
+  width:100%;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:13px;
+  padding:10px 12px;outline:none;resize:none;
+  min-height:72px;transition:border-color .2s;line-height:1.5;
+}
+.tl-comment-input::placeholder{color:var(--muted);}
+.tl-comment-input:focus{border-color:var(--gold);}
+.tl-comment-saved{
+  font-size:11px;color:var(--success);margin-top:5px;
+  display:none;
+}
+.tl-comment-saved.show{display:block;}
 
-    .pill-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
+/* replace panel */
+.tl-replace-wrap{
+  display:none;margin-top:10px;padding-left:17px;
+  background:rgba(137,196,216,.06);border:1px solid rgba(137,196,216,.2);
+  border-radius:var(--r-sm);padding:14px;
+}
+.tl-replace-wrap.show{display:block;}
+.tl-replace-label{
+  font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--sky);margin-bottom:8px;
+}
+.tl-replace-input{
+  width:100%;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:13px;
+  padding:10px 12px;outline:none;resize:none;min-height:64px;
+  transition:border-color .2s;line-height:1.5;margin-bottom:10px;
+}
+.tl-replace-input::placeholder{color:var(--muted);}
+.tl-replace-input:focus{border-color:var(--sky);}
+.tl-replace-btns{display:flex;gap:8px;}
+.btn-do-replace{
+  flex:1;background:var(--sky);color:#080b12;border:none;
+  border-radius:var(--r-xs);font-family:'Outfit',sans-serif;
+  font-size:12px;font-weight:600;padding:9px;cursor:pointer;
+  transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-do-replace:hover{opacity:.85;}
+.btn-do-replace.loading{opacity:.6;pointer-events:none;}
+.btn-cancel-replace{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  border-radius:var(--r-xs);font-family:'Outfit',sans-serif;
+  font-size:12px;padding:9px 16px;cursor:pointer;transition:all .2s;
+}
+.btn-cancel-replace:hover{border-color:var(--border-hi);color:var(--text);}
 
-    /* day tabs */
-    .day-tabs-wrap {
-      position: relative;
-    }
+.tip-box{
+  background:rgba(212,175,95,.07);border:1px solid var(--border-hi);
+  border-radius:var(--r-sm);padding:12px 14px;
+  font-size:13px;color:var(--text);opacity:.9;line-height:1.6;
+  margin-top:14px;
+}
+.tip-box strong{color:var(--gold);font-size:11px;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;}
 
-    .day-tabs {
-      display: flex;
-      overflow-x: auto;
-      gap: 4px;
-      padding: 0 0 2px;
-      margin-bottom: 16px;
-      scrollbar-width: none;
-    }
+/* budget table */
+.btable{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+.btable th{
+  text-align:left;font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.09em;color:var(--muted);
+  padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);
+}
+.btable td{padding:10px;border-bottom:1px solid var(--border);color:var(--text);opacity:.85;}
+.btable tr:last-child td{border-bottom:none;font-weight:600;color:var(--gold);opacity:1;}
+.btable .amt{text-align:right;font-family:'DM Mono',monospace;font-size:12px;}
 
-    .day-tabs::-webkit-scrollbar {
-      display: none;
-    }
+/* tips grid */
+.tips-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.tip-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:12px 14px;
+  font-size:13px;line-height:1.6;color:var(--text);opacity:.85;
+}
+.tip-card strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);opacity:1;margin-bottom:5px;}
 
-    .dtab {
-      flex-shrink: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      padding: 7px 14px;
-      cursor: pointer;
-      transition: all .18s;
-      white-space: nowrap;
-    }
-
-    .dtab:hover {
-      border-color: var(--border-hi);
-      color: var(--text);
-    }
-
-    .dtab.on {
-      background: var(--gold-dim);
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    /* panels */
-    .panel {
-      display: none;
-    }
-
-    .panel.on {
-      display: block;
-    }
-
-    /* itinerary content rendering */
-    .ic h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: var(--gold-lt);
-      margin: 24px 0 10px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .ic h2:first-child {
-      margin-top: 0;
-    }
-
-    .ic h3 {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--sky);
-      margin: 16px 0 6px;
-    }
-
-    .ic p {
-      font-size: 14px;
-      line-height: 1.75;
-      color: var(--text);
-      opacity: .87;
-      margin-bottom: 8px;
-    }
-
-    .ic ul,
-    .ic ol {
-      padding-left: 18px;
-      margin-bottom: 10px;
-    }
-
-    .ic li {
-      font-size: 14px;
-      line-height: 1.7;
-      color: var(--text);
-      opacity: .83;
-      margin-bottom: 3px;
-    }
-
-    .ic strong {
-      font-weight: 600;
-      color: var(--text);
-      opacity: 1;
-    }
-
-    /* timeline */
-    .tl {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .tl-item {
-      display: grid;
-      grid-template-columns: 58px 1fr;
-      gap: 0 12px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-
-    .tl-item:last-child {
-      border-bottom: none;
-    }
-
-    .tl-time {
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      padding-top: 3px;
-      text-align: right;
-    }
-
-    .tl-line-wrap {
-      position: relative;
-    }
-
-    .tl-dot {
-      position: absolute;
-      left: -17px;
-      top: 4px;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--gold);
-      border: 2px solid var(--bg);
-    }
-
-    .tl-vline {
-      position: absolute;
-      left: -14px;
-      top: 12px;
-      width: 1px;
-      height: calc(100% + 14px);
-      background: var(--border);
-    }
-
-    .tl-item:last-child .tl-vline {
-      display: none;
-    }
-
-    .tl-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .tl-text {
-      font-size: 13px;
-      line-height: 1.65;
-      color: var(--text);
-      opacity: .85;
-    }
-
-    .tl-tag {
-      display: inline-block;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 9px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--mint);
-      padding: 2px 7px;
-      margin-top: 5px;
-    }
-
-    .tip-box {
-      background: rgba(212, 175, 95, .07);
-      border: 1px solid var(--border-hi);
-      border-radius: var(--r-sm);
-      padding: 12px 14px;
-      font-size: 13px;
-      color: var(--text);
-      opacity: .9;
-      line-height: 1.6;
-      margin-top: 14px;
-    }
-
-    .tip-box strong {
-      color: var(--gold);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    /* budget table */
-    .btable {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 6px;
-    }
-
-    .btable th {
-      text-align: left;
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .09em;
-      color: var(--muted);
-      padding: 8px 10px;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .btable td {
-      padding: 10px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-      opacity: .85;
-    }
-
-    .btable tr:last-child td {
-      border-bottom: none;
-      font-weight: 600;
-      color: var(--gold);
-      opacity: 1;
-    }
-
-    .btable .amt {
-      text-align: right;
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-    }
-
-    /* tips grid */
-    .tips-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .tip-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 12px 14px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--text);
-      opacity: .85;
-    }
-
-    .tip-card strong {
-      display: block;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--gold);
-      opacity: 1;
-      margin-bottom: 5px;
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    PAGE: SAVED
 ═══════════════════════════════════════════════ */
-    .page-header {
-      padding: clamp(28px, 6vw, 48px) 20px 20px;
-      max-width: 480px;
-      margin: 0 auto;
-    }
+.page-header{
+  padding:clamp(28px,6vw,48px) 20px 20px;
+  max-width:480px;margin:0 auto;
+}
+.page-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,7vw,2.8rem);font-weight:300;
+  color:var(--text);margin-bottom:6px;
+}
+.page-sub{font-size:13px;color:var(--muted);font-weight:300;}
 
-    .page-h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 7vw, 2.8rem);
-      font-weight: 300;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
+.saved-list{
+  max-width:480px;margin:0 auto;
+  padding:0 16px calc(90px + var(--safe-bot));
+  display:flex;flex-direction:column;gap:12px;
+}
+.saved-empty{
+  text-align:center;padding:60px 20px;
+  color:var(--muted);font-size:14px;line-height:1.7;
+}
+.saved-empty svg{width:48px;height:48px;opacity:.3;margin:0 auto 16px;display:block;}
 
-    .page-sub {
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 300;
-    }
+.saved-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:18px 20px;
+  cursor:pointer;transition:border-color .2s,transform .15s;
+  position:relative;
+  animation:fadeUp .4s ease both;
+}
+.saved-card:hover{border-color:var(--border-hi);transform:translateY(-2px);}
+.sc-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.15rem;font-weight:400;color:var(--text);
+  margin-bottom:8px;line-height:1.3;
+}
+.sc-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.sc-pill{
+  background:var(--surface2);border-radius:100px;
+  font-size:10px;font-weight:500;color:var(--muted);
+  padding:3px 10px;
+}
+.sc-date{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.sc-actions{
+  position:absolute;top:14px;right:14px;
+  display:flex;gap:6px;
+}
+.sc-btn{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted);border-radius:var(--r-xs);
+  width:32px;height:32px;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s;
+}
+.sc-btn:hover{border-color:var(--border-hi);color:var(--gold);}
+.sc-btn.del:hover{border-color:rgba(224,106,106,.4);color:var(--danger);}
 
-    .saved-list {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 0 16px calc(90px + var(--safe-bot));
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .saved-empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .saved-empty svg {
-      width: 48px;
-      height: 48px;
-      opacity: .3;
-      margin: 0 auto 16px;
-      display: block;
-    }
-
-    .saved-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 18px 20px;
-      cursor: pointer;
-      transition: border-color .2s, transform .15s;
-      position: relative;
-      animation: fadeUp .4s ease both;
-    }
-
-    .saved-card:hover {
-      border-color: var(--border-hi);
-      transform: translateY(-2px);
-    }
-
-    .sc-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.15rem;
-      font-weight: 400;
-      color: var(--text);
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-
-    .sc-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .sc-pill {
-      background: var(--surface2);
-      border-radius: 100px;
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--muted);
-      padding: 3px 10px;
-    }
-
-    .sc-date {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-
-    .sc-actions {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      display: flex;
-      gap: 6px;
-    }
-
-    .sc-btn {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: var(--r-xs);
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all .18s;
-    }
-
-    .sc-btn:hover {
-      border-color: var(--border-hi);
-      color: var(--gold);
-    }
-
-    .sc-btn.del:hover {
-      border-color: rgba(224, 106, 106, .4);
-      color: var(--danger);
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    SHARE SHEET
 ═══════════════════════════════════════════════ */
-    .sheet-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 300;
-      background: rgba(8, 11, 18, .7);
-      backdrop-filter: blur(8px);
-      align-items: flex-end;
-    }
+.sheet-overlay{
+  display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(8,11,18,.7);backdrop-filter:blur(8px);
+  align-items:flex-end;
+}
+.sheet-overlay.show{display:flex;}
+.sheet{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  border-radius:var(--r) var(--r) 0 0;
+  width:100%;max-width:480px;margin:0 auto;
+  padding:20px 20px calc(20px + var(--safe-bot));
+  animation:slideUp .3s ease both;
+}
+.sheet-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:var(--surface3);margin:0 auto 20px;
+}
+.sheet-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.2rem;font-weight:400;
+  color:var(--text);margin-bottom:16px;
+}
+.share-options{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.share-opt{
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:14px 8px;
+  cursor:pointer;transition:all .18s;
+}
+.share-opt:hover{border-color:var(--border-hi);}
+.share-opt .icon{font-size:22px;}
+.share-opt span{font-size:10px;color:var(--muted);text-align:center;line-height:1.3;}
+.share-link-row{
+  display:flex;gap:8px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:10px 14px;
+  align-items:center;
+}
+.share-link-row input{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;
+}
+.btn-copy-link{
+  background:var(--gold);color:#080b12;border:none;
+  border-radius:var(--r-xs);font-size:12px;font-weight:600;
+  padding:7px 14px;cursor:pointer;white-space:nowrap;
+  transition:opacity .2s;
+}
+.btn-copy-link:hover{opacity:.85;}
+.btn-cancel-sheet{
+  width:100%;margin-top:12px;background:none;
+  border:1px solid var(--border);border-radius:var(--r-sm);
+  color:var(--muted);font-family:'Outfit',sans-serif;
+  font-size:13px;font-weight:500;padding:11px;cursor:pointer;
+  transition:all .2s;
+}
+.btn-cancel-sheet:hover{border-color:var(--border-hi);color:var(--text);}
 
-    .sheet-overlay.show {
-      display: flex;
-    }
-
-    .sheet {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      border-radius: var(--r) var(--r) 0 0;
-      width: 100%;
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 20px 20px calc(20px + var(--safe-bot));
-      animation: slideUp .3s ease both;
-    }
-
-    .sheet-handle {
-      width: 36px;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--surface3);
-      margin: 0 auto 20px;
-    }
-
-    .sheet-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-weight: 400;
-      color: var(--text);
-      margin-bottom: 16px;
-    }
-
-    .share-options {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .share-opt {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 7px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 14px 8px;
-      cursor: pointer;
-      transition: all .18s;
-    }
-
-    .share-opt:hover {
-      border-color: var(--border-hi);
-    }
-
-    .share-opt .icon {
-      font-size: 22px;
-    }
-
-    .share-opt span {
-      font-size: 10px;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.3;
-    }
-
-    .share-link-row {
-      display: flex;
-      gap: 8px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 10px 14px;
-      align-items: center;
-    }
-
-    .share-link-row input {
-      flex: 1;
-      background: none;
-      border: none;
-      outline: none;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-    }
-
-    .btn-copy-link {
-      background: var(--gold);
-      color: #080b12;
-      border: none;
-      border-radius: var(--r-xs);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 7px 14px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: opacity .2s;
-    }
-
-    .btn-copy-link:hover {
-      opacity: .85;
-    }
-
-    .btn-cancel-sheet {
-      width: 100%;
-      margin-top: 12px;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      color: var(--muted);
-      font-family: 'Outfit', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 11px;
-      cursor: pointer;
-      transition: all .2s;
-    }
-
-    .btn-cancel-sheet:hover {
-      border-color: var(--border-hi);
-      color: var(--text);
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    TOAST
 ═══════════════════════════════════════════════ */
-    .toast {
-      position: fixed;
-      bottom: calc(72px + var(--safe-bot) + 12px);
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      font-size: 13px;
-      color: var(--text);
-      padding: 9px 20px;
-      z-index: 400;
-      opacity: 0;
-      transition: all .3s;
-      white-space: nowrap;
-      pointer-events: none;
-    }
+.toast{
+  position:fixed;bottom:calc(72px + var(--safe-bot) + 12px);
+  left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:100px;font-size:13px;color:var(--text);
+  padding:9px 20px;z-index:400;opacity:0;
+  transition:all .3s;white-space:nowrap;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    INSTALL BANNER
 ═══════════════════════════════════════════════ */
-    .install-banner {
-      display: none;
-      max-width: 480px;
-      margin: 16px auto 0;
-      padding: 0 16px;
-      animation: fadeUp .4s ease both;
-    }
+.install-banner{
+  display:none;
+  max-width:480px;margin:16px auto 0;padding:0 16px;
+  animation:fadeUp .4s ease both;
+}
+.install-banner.show{display:block;}
+.install-inner{
+  background:var(--gold-dim);border:1px solid var(--gold-glow);
+  border-radius:var(--r);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.install-inner .icon{font-size:24px;flex-shrink:0;}
+.install-txt{flex:1;}
+.install-txt strong{display:block;font-size:13px;color:var(--gold-lt);margin-bottom:2px;}
+.install-txt span{font-size:12px;color:var(--muted);}
+.btn-install{
+  background:var(--gold);color:#080b12;border:none;
+  border-radius:var(--r-xs);font-size:12px;font-weight:600;
+  padding:8px 14px;cursor:pointer;flex-shrink:0;
+  transition:opacity .2s;
+}
+.btn-install:hover{opacity:.85;}
+.btn-dismiss{
+  background:none;border:none;color:var(--muted);
+  font-size:18px;cursor:pointer;flex-shrink:0;line-height:1;
+  padding:4px;
+}
 
-    .install-banner.show {
-      display: block;
-    }
-
-    .install-inner {
-      background: var(--gold-dim);
-      border: 1px solid var(--gold-glow);
-      border-radius: var(--r);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .install-inner .icon {
-      font-size: 24px;
-      flex-shrink: 0;
-    }
-
-    .install-txt {
-      flex: 1;
-    }
-
-    .install-txt strong {
-      display: block;
-      font-size: 13px;
-      color: var(--gold-lt);
-      margin-bottom: 2px;
-    }
-
-    .install-txt span {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .btn-install {
-      background: var(--gold);
-      color: #080b12;
-      border: none;
-      border-radius: var(--r-xs);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 8px 14px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: opacity .2s;
-    }
-
-    .btn-install:hover {
-      opacity: .85;
-    }
-
-    .btn-dismiss {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 18px;
-      cursor: pointer;
-      flex-shrink: 0;
-      line-height: 1;
-      padding: 4px;
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    ANIMATIONS
 ═══════════════════════════════════════════════ */
-    @keyframes fadeDown {
-      from {
-        opacity: 0;
-        transform: translateY(-16px)
-      }
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp  {from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)}}
+@keyframes spin    {to{transform:rotate(360deg)}}
+@keyframes stepIn  {from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp {from{transform:translateY(100%)}to{transform:translateY(0)}}
 
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg)
-      }
-    }
-
-    @keyframes stepIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px)
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
-      }
-    }
-
-    @keyframes slideUp {
-      from {
-        transform: translateY(100%)
-      }
-
-      to {
-        transform: translateY(0)
-      }
-    }
-
-    /* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════════ */
-    @media(max-width:400px) {
-      .tips-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .share-options {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-  </style>
+@media(max-width:400px){
+  .tips-grid{grid-template-columns:1fr;}
+  .share-options{grid-template-columns:repeat(4,1fr);}
+}
+</style>
 </head>
-
 <body>
 
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
 
-  <!-- ══ INSTALL BANNER ══════════════════════════════════════ -->
-  <div class="install-banner" id="installBanner">
-    <div class="install-inner">
-      <div class="icon">✈️</div>
-      <div class="install-txt">
-        <strong>Add to Home Screen</strong>
-        <span>Install Vibe Travel for quick access</span>
-      </div>
-      <button class="btn-install" id="btnInstall">Install</button>
-      <button class="btn-dismiss" onclick="dismissInstall()">✕</button>
+<!-- ══ INSTALL BANNER ══════════════════════════════════════ -->
+<div class="install-banner" id="installBanner">
+  <div class="install-inner">
+    <div class="icon">✈️</div>
+    <div class="install-txt">
+      <strong>Add to Home Screen</strong>
+      <span>Install Vibe Travel for quick access</span>
     </div>
+    <button class="btn-install" id="btnInstall">Install</button>
+    <button class="btn-dismiss" onclick="dismissInstall()">✕</button>
   </div>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      PAGE: PLAN
 ════════════════════════════════════════════════════════ -->
-  <div class="page active" id="pagePlan">
+<div class="page active" id="pagePlan">
 
-    <div class="plan-header">
-      <div class="badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2a14.5 14.5 0 000 20M2 12h20" />
-        </svg>
-        AI Travel Planner
-      </div>
-      <div class="app-title">Vibe <em>Travel</em></div>
-      <p class="app-sub">Tell Gemini AI where you want to go. Get a full itinerary in seconds.</p>
+  <div class="plan-header">
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20M2 12h20"/></svg>
+      AI Travel Planner
     </div>
+    <div class="app-title">Vibe <em>Travel</em></div>
+    <p class="app-sub">Tell Gemini AI where you want to go. Get a full itinerary in seconds.</p>
+  </div>
 
-    <div class="form-wrap">
-      <div class="form-card">
+  <div class="form-wrap">
+    <div class="form-card">
 
-        <div class="field">
-          <label>Destination</label>
-          <input type="text" id="dest" placeholder="e.g. Tokyo, Kyoto, Bali…" autocomplete="off" />
-        </div>
-
-        <div class="row-2">
-          <div class="field">
-            <label>Duration</label>
-            <select id="days">
-              <option value="3">3 Days</option>
-              <option value="5" selected>5 Days</option>
-              <option value="7">7 Days</option>
-              <option value="10">10 Days</option>
-              <option value="14">14 Days</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Travellers</label>
-            <select id="travellers">
-              <option value="Solo">Solo</option>
-              <option value="Couple" selected>Couple</option>
-              <option value="Small Group">Small Group</option>
-              <option value="Family">Family</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Budget per Person</label>
-          <div class="budget-row">
-            <input type="number" id="budget" placeholder="2000" min="0" />
-            <select id="currency">
-              <option value="MYR">MYR</option>
-              <option value="USD">USD</option>
-              <option value="JPY">JPY</option>
-              <option value="EUR">EUR</option>
-              <option value="SGD">SGD</option>
-              <option value="THB">THB</option>
-              <option value="AUD">AUD</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Travel Style</label>
-          <div class="chips" id="styleChips">
-            <div class="chip on" data-v="Balanced Explorer">🧭 Balanced</div>
-            <div class="chip" data-v="Adventure & Outdoor">🏔️ Adventure</div>
-            <div class="chip" data-v="Culture & History">🏛️ Culture</div>
-            <div class="chip" data-v="Food & Culinary">🍜 Food</div>
-            <div class="chip" data-v="Luxury & Comfort">✨ Luxury</div>
-            <div class="chip" data-v="Budget Backpacker">🎒 Budget</div>
-            <div class="chip" data-v="Family Friendly">👨‍👩‍👧 Family</div>
-            <div class="chip" data-v="Romantic Getaway">💑 Romantic</div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Notes (optional)</label>
-          <input type="text" id="notes" placeholder="e.g. vegan, no hiking, beach preferred…" />
-        </div>
-
-        <button class="btn-gen" id="btnGen" onclick="generate()">
-          <span>✦</span> Generate My Itinerary
-        </button>
-        <div class="err" id="errBox"></div>
-
+      <div class="field">
+        <label>Destination</label>
+        <input type="text" id="dest" placeholder="e.g. Tokyo, Kyoto, Bali…" autocomplete="off"/>
       </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Duration</label>
+          <select id="days">
+            <option value="3">3 Days</option>
+            <option value="5" selected>5 Days</option>
+            <option value="7">7 Days</option>
+            <option value="10">10 Days</option>
+            <option value="14">14 Days</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Travellers</label>
+          <select id="travellers">
+            <option value="Solo">Solo</option>
+            <option value="Couple" selected>Couple</option>
+            <option value="Small Group">Small Group</option>
+            <option value="Family">Family</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Budget per Person</label>
+        <div class="budget-row">
+          <input type="number" id="budget" placeholder="2000" min="0"/>
+          <select id="currency">
+            <option value="MYR">MYR</option>
+            <option value="USD">USD</option>
+            <option value="JPY">JPY</option>
+            <option value="EUR">EUR</option>
+            <option value="SGD">SGD</option>
+            <option value="THB">THB</option>
+            <option value="AUD">AUD</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Travel Style</label>
+        <div class="chips" id="styleChips">
+          <div class="chip on" data-v="Balanced Explorer">🧭 Balanced</div>
+          <div class="chip" data-v="Adventure & Outdoor">🏔️ Adventure</div>
+          <div class="chip" data-v="Culture & History">🏛️ Culture</div>
+          <div class="chip" data-v="Food & Culinary">🍜 Food</div>
+          <div class="chip" data-v="Luxury & Comfort">✨ Luxury</div>
+          <div class="chip" data-v="Budget Backpacker">🎒 Budget</div>
+          <div class="chip" data-v="Family Friendly">👨‍👩‍👧 Family</div>
+          <div class="chip" data-v="Romantic Getaway">💑 Romantic</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes (optional)</label>
+        <input type="text" id="notes" placeholder="e.g. vegan, no hiking, beach preferred…"/>
+      </div>
+
+      <button class="btn-gen" id="btnGen" onclick="generate()">
+        <span>✦</span> Generate My Itinerary
+      </button>
+      <div class="err" id="errBox"></div>
+
     </div>
+  </div>
 
-  </div><!-- /pagePlan -->
+</div><!-- /pagePlan -->
 
-  <!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      PAGE: RESULT (shown over plan page)
 ════════════════════════════════════════════════════════ -->
-  <div class="page" id="pageResult">
-    <div class="result-wrap show" id="resultWrap">
-      <div class="result-topbar">
-        <button class="btn-back" onclick="backToPlan()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-          </svg>
-          Back
-        </button>
-        <div class="action-btns">
-          <button class="btn-icon-action" title="Save" onclick="saveItinerary()">💾</button>
-          <button class="btn-icon-action" title="Share" onclick="openShare()">🔗</button>
-          <button class="btn-icon-action" title="Copy text" onclick="copyRaw()">📋</button>
-        </div>
+<div class="page" id="pageResult">
+  <div class="result-wrap show" id="resultWrap">
+    <div class="result-topbar">
+      <button class="btn-back" onclick="backToPlan()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back
+      </button>
+      <div class="action-btns">
+        <button class="btn-icon-action" title="Save" onclick="saveItinerary()">💾</button>
+        <button class="btn-icon-action" title="Share" onclick="openShare()">🔗</button>
+        <button class="btn-icon-action" title="Copy text" onclick="copyRaw()">📋</button>
       </div>
-      <div class="result-title" id="rTitle">Your Itinerary</div>
-      <div class="meta-row" id="rMeta"></div>
-      <div class="day-tabs" id="dayTabs"></div>
-      <div id="panels"></div>
     </div>
+    <div class="result-title" id="rTitle">Your Itinerary</div>
+    <div class="meta-row" id="rMeta"></div>
+    <div class="day-tabs" id="dayTabs"></div>
+    <div id="panels"></div>
   </div>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      PAGE: SAVED
 ════════════════════════════════════════════════════════ -->
-  <div class="page" id="pageSaved">
-    <div class="page-header">
-      <div class="page-h1">Saved <em style="font-style:italic;color:var(--gold)">Trips</em></div>
-      <p class="page-sub">Your itineraries, available offline</p>
-    </div>
-    <div class="saved-list" id="savedList"></div>
+<div class="page" id="pageSaved">
+  <div class="page-header">
+    <div class="page-h1">Saved <em style="font-style:italic;color:var(--gold)">Trips</em></div>
+    <p class="page-sub">Your itineraries, available offline</p>
   </div>
+  <div class="saved-list" id="savedList"></div>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      BOTTOM NAV
 ════════════════════════════════════════════════════════ -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" id="navPlan" onclick="switchPage('plan')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 2a14.5 14.5 0 000 20M2 12h20" />
-      </svg>
-      Plan
-    </button>
-    <button class="nav-btn" id="navSaved" onclick="switchPage('saved')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
-      </svg>
-      Saved
-      <div class="nav-dot" id="savedDot"></div>
-    </button>
-  </nav>
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="navPlan" onclick="switchPage('plan')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20M2 12h20"/></svg>
+    Plan
+  </button>
+  <button class="nav-btn" id="navSaved" onclick="switchPage('saved')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+    Saved
+    <div class="nav-dot" id="savedDot"></div>
+  </button>
+</nav>
 
-  <!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      LOADING OVERLAY
 ════════════════════════════════════════════════════════ -->
-  <div class="loading" id="loadingOverlay">
-    <div class="ring"></div>
-    <div class="load-title">Crafting your trip…</div>
-    <div class="load-steps">
-      <div class="load-step on" id="ls1">📍 Analysing destination</div>
-      <div class="load-step" id="ls2">🗓️ Planning day by day</div>
-      <div class="load-step" id="ls3">💰 Estimating budget</div>
-      <div class="load-step" id="ls4">✨ Adding local gems</div>
-    </div>
+<div class="loading" id="loadingOverlay">
+  <div class="ring"></div>
+  <div class="load-title">Crafting your trip…</div>
+  <div class="load-steps">
+    <div class="load-step on"  id="ls1">📍 Analysing destination</div>
+    <div class="load-step"     id="ls2">🗓️ Planning day by day</div>
+    <div class="load-step"     id="ls3">💰 Estimating budget</div>
+    <div class="load-step"     id="ls4">✨ Adding local gems</div>
   </div>
+</div>
 
-  <!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════
      SHARE SHEET
 ════════════════════════════════════════════════════════ -->
-  <div class="sheet-overlay" id="shareSheet" onclick="closeShare(event)">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">Share Itinerary</div>
-      <div class="share-options">
-        <div class="share-opt" onclick="shareVia('native')">
-          <div class="icon">📤</div><span>Share</span>
-        </div>
-        <div class="share-opt" onclick="shareVia('whatsapp')">
-          <div class="icon">💬</div><span>WhatsApp</span>
-        </div>
-        <div class="share-opt" onclick="shareVia('copy')">
-          <div class="icon">🔗</div><span>Copy Link</span>
-        </div>
-        <div class="share-opt" onclick="shareVia('text')">
-          <div class="icon">📋</div><span>Copy Text</span>
-        </div>
-      </div>
-      <div class="share-link-row">
-        <input type="text" id="shareUrl" readonly />
-        <button class="btn-copy-link" onclick="shareVia('copy')">Copy</button>
-      </div>
-      <button class="btn-cancel-sheet" onclick="closeShare()">Cancel</button>
+<div class="sheet-overlay" id="shareSheet" onclick="closeShare(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Share Itinerary</div>
+    <div class="share-options">
+      <div class="share-opt" onclick="shareVia('native')"><div class="icon">📤</div><span>Share</span></div>
+      <div class="share-opt" onclick="shareVia('whatsapp')"><div class="icon">💬</div><span>WhatsApp</span></div>
+      <div class="share-opt" onclick="shareVia('copy')"><div class="icon">🔗</div><span>Copy Link</span></div>
+      <div class="share-opt" onclick="shareVia('text')"><div class="icon">📋</div><span>Copy Text</span></div>
     </div>
+    <div class="share-link-row">
+      <input type="text" id="shareUrl" readonly/>
+      <button class="btn-copy-link" onclick="shareVia('copy')">Copy</button>
+    </div>
+    <button class="btn-cancel-sheet" onclick="closeShare()">Cancel</button>
   </div>
+</div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
-  <script>
-    // ══════════════════════════════════════════════════════
-    //  CONFIG — update WORKER_URL after deploying Cloudflare Worker
-    // ══════════════════════════════════════════════════════
-    const WORKER_URL = 'https://travelai.ckh892006.workers.dev';
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG — update WORKER_URL after deploying Cloudflare Worker
+// ══════════════════════════════════════════════════════
+const WORKER_URL = 'https://vibe-travel-proxy.YOUR-SUBDOMAIN.workers.dev';
 
-    // ══════════════════════════════════════════════════════
-    //  STATE
-    // ══════════════════════════════════════════════════════
-    let currentRaw = '';
-    let currentMeta = {};
-    let deferredPrompt = null;
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let currentRaw   = '';
+let currentMeta  = {};
+let deferredPrompt = null;
 
-    // ══════════════════════════════════════════════════════
-    //  PWA — service worker + install prompt
-    // ══════════════════════════════════════════════════════
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/travelai/sw.js')
-          .catch(e => console.warn('SW reg failed:', e));
-      });
-    }
+// ══════════════════════════════════════════════════════
+//  PWA — service worker + install prompt
+// ══════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/travelai/sw.js')
+      .catch(e => console.warn('SW reg failed:', e));
+  });
+}
 
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      if (!localStorage.getItem('pwa_dismissed')) {
-        document.getElementById('installBanner').classList.add('show');
-      }
-    });
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('pwa_dismissed')) {
+    document.getElementById('installBanner').classList.add('show');
+  }
+});
 
-    document.getElementById('btnInstall').onclick = async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      document.getElementById('installBanner').classList.remove('show');
-    };
+document.getElementById('btnInstall').onclick = async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.remove('show');
+};
 
-    function dismissInstall() {
-      localStorage.setItem('pwa_dismissed', '1');
-      document.getElementById('installBanner').classList.remove('show');
-    }
+function dismissInstall() {
+  localStorage.setItem('pwa_dismissed','1');
+  document.getElementById('installBanner').classList.remove('show');
+}
 
-    // ══════════════════════════════════════════════════════
-    //  NAVIGATION
-    // ══════════════════════════════════════════════════════
-    function switchPage(page) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
-      if (page === 'plan') {
-        document.getElementById('pagePlan').classList.add('active');
-        document.getElementById('navPlan').classList.add('active');
-      } else if (page === 'saved') {
-        document.getElementById('pageSaved').classList.add('active');
-        document.getElementById('navSaved').classList.add('active');
-        renderSavedList();
-      } else if (page === 'result') {
-        document.getElementById('pageResult').classList.add('active');
-      }
-    }
+  if (page === 'plan') {
+    document.getElementById('pagePlan').classList.add('active');
+    document.getElementById('navPlan').classList.add('active');
+  } else if (page === 'saved') {
+    document.getElementById('pageSaved').classList.add('active');
+    document.getElementById('navSaved').classList.add('active');
+    renderSavedList();
+  } else if (page === 'result') {
+    document.getElementById('pageResult').classList.add('active');
+  }
+}
 
-    function backToPlan() {
-      switchPage('plan');
-    }
+function backToPlan() {
+  switchPage('plan');
+}
 
-    // handle ?view=saved deeplink
-    if (location.search.includes('view=saved')) switchPage('saved');
+// handle ?view=saved deeplink
+if (location.search.includes('view=saved')) switchPage('saved');
 
-    // ══════════════════════════════════════════════════════
-    //  STYLE CHIPS — single select
-    // ══════════════════════════════════════════════════════
-    document.querySelectorAll('#styleChips .chip').forEach(c => {
-      c.onclick = () => {
-        document.querySelectorAll('#styleChips .chip').forEach(x => x.classList.remove('on'));
-        c.classList.add('on');
-      };
-    });
-    function getStyle() {
-      return document.querySelector('#styleChips .chip.on')?.dataset.v || 'Balanced Explorer';
-    }
+// ══════════════════════════════════════════════════════
+//  STYLE CHIPS — single select
+// ══════════════════════════════════════════════════════
+document.querySelectorAll('#styleChips .chip').forEach(c => {
+  c.onclick = () => {
+    document.querySelectorAll('#styleChips .chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+  };
+});
+function getStyle() {
+  return document.querySelector('#styleChips .chip.on')?.dataset.v || 'Balanced Explorer';
+}
 
-    // ══════════════════════════════════════════════════════
-    //  LOADING STEPS
-    // ══════════════════════════════════════════════════════
-    let stepTimer;
-    function startSteps() {
-      const ids = ['ls1', 'ls2', 'ls3', 'ls4'];
-      let i = 0;
-      ids.forEach(id => { document.getElementById(id).classList.remove('on'); });
-      document.getElementById(ids[0]).classList.add('on');
-      stepTimer = setInterval(() => {
-        if (i > 0) document.getElementById(ids[i - 1]).classList.remove('on');
-        i++;
-        if (i < ids.length) document.getElementById(ids[i]).classList.add('on');
-        else clearInterval(stepTimer);
-      }, 1600);
-    }
-    function stopSteps() { clearInterval(stepTimer); }
+// ══════════════════════════════════════════════════════
+//  LOADING STEPS
+// ══════════════════════════════════════════════════════
+let stepTimer;
+function startSteps() {
+  const ids = ['ls1','ls2','ls3','ls4'];
+  let i = 0;
+  ids.forEach(id => { document.getElementById(id).classList.remove('on'); });
+  document.getElementById(ids[0]).classList.add('on');
+  stepTimer = setInterval(() => {
+    if (i > 0) document.getElementById(ids[i-1]).classList.remove('on');
+    i++;
+    if (i < ids.length) document.getElementById(ids[i]).classList.add('on');
+    else clearInterval(stepTimer);
+  }, 1600);
+}
+function stopSteps() { clearInterval(stepTimer); }
 
-    // ══════════════════════════════════════════════════════
-    //  TOAST
-    // ══════════════════════════════════════════════════════
-    let toastTimer;
-    function toast(msg, dur = 2200) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.remove('show'), dur);
-    }
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, dur=2200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), dur);
+}
 
-    // ══════════════════════════════════════════════════════
-    //  BUILD PROMPT
-    // ══════════════════════════════════════════════════════
-    function buildPrompt() {
-      const dest = document.getElementById('dest').value.trim();
-      const days = document.getElementById('days').value;
-      const travellers = document.getElementById('travellers').value;
-      const budget = document.getElementById('budget').value;
-      const currency = document.getElementById('currency').value;
-      const style = getStyle();
-      const notes = document.getElementById('notes').value.trim();
-      const budgetTxt = budget ? `${budget} ${currency} per person` : 'flexible';
+// ══════════════════════════════════════════════════════
+//  BUILD PROMPT
+// ══════════════════════════════════════════════════════
+function buildPrompt() {
+  const dest      = document.getElementById('dest').value.trim();
+  const days      = document.getElementById('days').value;
+  const travellers= document.getElementById('travellers').value;
+  const budget    = document.getElementById('budget').value;
+  const currency  = document.getElementById('currency').value;
+  const style     = getStyle();
+  const notes     = document.getElementById('notes').value.trim();
+  const budgetTxt = budget ? `${budget} ${currency} per person` : 'flexible';
 
-      return `You are an expert travel planner. Create a detailed ${days}-day travel itinerary.
+  return `You are an expert travel planner. Create a detailed ${days}-day travel itinerary.
 
 Destination: ${dest}
 Duration: ${days} days
 Travellers: ${travellers}
 Travel Style: ${style}
 Budget: ${budgetTxt}
-${notes ? 'Special notes: ' + notes : ''}
+${notes ? 'Special notes: '+notes : ''}
 
 Structure your response EXACTLY with these section headers:
 
@@ -1690,292 +1032,410 @@ Estimated daily cost in ${currency} as a markdown table:
 6 tips covering transport, currency, language, safety, packing, and local etiquette.
 
 Use real venue/restaurant names. All content in English. Be specific and genuinely helpful.`;
-    }
+}
 
-    // ══════════════════════════════════════════════════════
-    //  CALL WORKER
-    // ══════════════════════════════════════════════════════
-    async function callWorker(prompt) {
-      const res = await fetch(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
-      if (!data.result) throw new Error('No content returned. Please try again.');
-      return data.result;
-    }
+// ══════════════════════════════════════════════════════
+//  CALL WORKER
+// ══════════════════════════════════════════════════════
+async function callWorker(prompt) {
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  if (!data.result) throw new Error('No content returned. Please try again.');
+  return data.result;
+}
 
-    // ══════════════════════════════════════════════════════
-    //  GENERATE
-    // ══════════════════════════════════════════════════════
-    async function generate() {
-      const dest = document.getElementById('dest').value.trim();
-      const errBox = document.getElementById('errBox');
-      errBox.classList.remove('show');
+// ══════════════════════════════════════════════════════
+//  GENERATE
+// ══════════════════════════════════════════════════════
+async function generate() {
+  const dest = document.getElementById('dest').value.trim();
+  const errBox = document.getElementById('errBox');
+  errBox.classList.remove('show');
 
-      if (!dest) { errBox.textContent = 'Please enter a destination.'; errBox.classList.add('show'); return; }
+  if (!dest) { errBox.textContent = 'Please enter a destination.'; errBox.classList.add('show'); return; }
 
-      const btn = document.getElementById('btnGen');
-      btn.disabled = true;
-      document.getElementById('loadingOverlay').classList.add('show');
-      startSteps();
+  const btn = document.getElementById('btnGen');
+  btn.disabled = true;
+  document.getElementById('loadingOverlay').classList.add('show');
+  startSteps();
 
-      try {
-        const prompt = buildPrompt();
-        const result = await callWorker(prompt);
-        currentRaw = result;
-        currentMeta = {
-          dest,
-          days: document.getElementById('days').value,
-          style: getStyle(),
-          currency: document.getElementById('currency').value,
-          travellers: document.getElementById('travellers').value,
-          budget: document.getElementById('budget').value,
-        };
+  try {
+    const prompt = buildPrompt();
+    const result = await callWorker(prompt);
+    currentRaw  = result;
+    currentMeta = {
+      dest,
+      days:      document.getElementById('days').value,
+      style:     getStyle(),
+      currency:  document.getElementById('currency').value,
+      travellers:document.getElementById('travellers').value,
+      budget:    document.getElementById('budget').value,
+    };
 
-        renderResult(result, currentMeta);
-        switchPage('result');
+    renderResult(result, currentMeta);
+    switchPage('result');
 
-      } catch (err) {
-        let msg = err.message || 'Something went wrong.';
-        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) msg = 'Network error — check your connection and try again.';
-        errBox.textContent = msg;
-        errBox.classList.add('show');
-      } finally {
-        btn.disabled = false;
-        stopSteps();
-        document.getElementById('loadingOverlay').classList.remove('show');
-      }
-    }
+  } catch(err) {
+    let msg = err.message || 'Something went wrong.';
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) msg = 'Network error — check your connection and try again.';
+    errBox.textContent = msg;
+    errBox.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    stopSteps();
+    document.getElementById('loadingOverlay').classList.remove('show');
+  }
+}
 
-    // enter key
-    document.getElementById('dest').addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+// enter key
+document.getElementById('dest').addEventListener('keydown', e => { if(e.key==='Enter') generate(); });
 
-    // ══════════════════════════════════════════════════════
-    //  RENDER RESULT
-    // ══════════════════════════════════════════════════════
-    function renderResult(text, meta) {
-      document.getElementById('rTitle').textContent = `${meta.days}-Day ${meta.dest} Itinerary`;
+// ══════════════════════════════════════════════════════
+//  RENDER RESULT
+// ══════════════════════════════════════════════════════
+function renderResult(text, meta) {
+  document.getElementById('rTitle').textContent = `${meta.days}-Day ${meta.dest} Itinerary`;
 
-      const metaEl = document.getElementById('rMeta');
-      metaEl.innerHTML = [meta.days + ' Days', meta.dest, meta.style, meta.travellers, meta.currency]
-        .map(v => `<div class="pill"><span class="pill-dot"></span>${v}</div>`).join('');
+  const metaEl = document.getElementById('rMeta');
+  metaEl.innerHTML = [meta.days+' Days', meta.dest, meta.style, meta.travellers, meta.currency]
+    .map(v => `<div class="pill"><span class="pill-dot"></span>${v}</div>`).join('');
 
-      // parse sections
-      const sections = parseSections(text);
-      const days = parseInt(meta.days);
+  // parse sections
+  const sections = parseSections(text);
+  const days     = parseInt(meta.days);
 
-      const tabsEl = document.getElementById('dayTabs');
-      const panelsEl = document.getElementById('panels');
-      tabsEl.innerHTML = '';
-      panelsEl.innerHTML = '';
+  const tabsEl   = document.getElementById('dayTabs');
+  const panelsEl = document.getElementById('panels');
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
 
-      const tabDefs = [
-        { id: 'overview', label: 'Overview' },
-        ...Array.from({ length: days }, (_, i) => ({ id: `day${i + 1}`, label: `Day ${i + 1}` })),
-        { id: 'budget', label: 'Budget' },
-        { id: 'tips', label: 'Tips' },
-      ];
+  const tabDefs = [
+    { id:'overview', label:'Overview' },
+    ...Array.from({length:days},(_,i)=>({ id:`day${i+1}`, label:`Day ${i+1}` })),
+    { id:'budget', label:'Budget' },
+    { id:'tips',   label:'Tips' },
+  ];
 
-      tabDefs.forEach((t, i) => {
-        const tab = document.createElement('div');
-        tab.className = 'dtab' + (i === 0 ? ' on' : '');
-        tab.textContent = t.label;
-        tab.onclick = () => {
-          document.querySelectorAll('.dtab').forEach(x => x.classList.remove('on'));
-          document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
-          tab.classList.add('on');
-          document.getElementById('panel-' + t.id).classList.add('on');
-        };
-        tabsEl.appendChild(tab);
+  tabDefs.forEach((t,i) => {
+    const tab = document.createElement('div');
+    tab.className = 'dtab' + (i===0?' on':'');
+    tab.textContent = t.label;
+    tab.onclick = () => {
+      document.querySelectorAll('.dtab').forEach(x=>x.classList.remove('on'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+      tab.classList.add('on');
+      document.getElementById('panel-'+t.id).classList.add('on');
+    };
+    tabsEl.appendChild(tab);
 
-        const panel = document.createElement('div');
-        panel.className = 'panel ic' + (i === 0 ? ' on' : '');
-        panel.id = 'panel-' + t.id;
-        panel.innerHTML = buildPanelHTML(t.id, sections, days, meta.currency);
-        panelsEl.appendChild(panel);
-      });
-    }
+    const panel = document.createElement('div');
+    panel.className = 'panel ic' + (i===0?' on':'');
+    panel.id = 'panel-'+t.id;
+    panel.innerHTML = buildPanelHTML(t.id, sections, days, meta.currency);
+    panelsEl.appendChild(panel);
+  });
+}
 
-    function parseSections(text) {
-      const out = {};
-      const matches = [...text.matchAll(/^##\s+(.+)$/gm)];
-      matches.forEach((m, i) => {
-        const key = m[1].trim();
-        const start = m.index + m[0].length;
-        const end = i + 1 < matches.length ? matches[i + 1].index : text.length;
-        out[key] = text.slice(start, end).trim();
-      });
-      return out;
-    }
+function parseSections(text) {
+  const out = {};
+  const matches = [...text.matchAll(/^##\s+(.+)$/gm)];
+  matches.forEach((m,i) => {
+    const key   = m[1].trim();
+    const start = m.index + m[0].length;
+    const end   = i+1 < matches.length ? matches[i+1].index : text.length;
+    out[key] = text.slice(start,end).trim();
+  });
+  return out;
+}
 
-    function buildPanelHTML(id, sections, days, currency) {
-      if (id === 'overview') {
-        const ovKey = Object.keys(sections).find(k => k.includes('Overview')) || '';
-        const acKey = Object.keys(sections).find(k => k.includes('Accommodation')) || '';
-        const fdKey = Object.keys(sections).find(k => k.includes('Food') || k.includes('Dishes')) || '';
-        let html = ovKey ? `<h2>✈️ Overview</h2>${md(sections[ovKey])}` : '';
-        html += acKey ? `<h2>🏨 Where to Stay</h2>${md(sections[acKey])}` : '';
-        html += fdKey ? `<h2>🍽️ Must-Try Food</h2>${md(sections[fdKey])}` : '';
-        return html || md(Object.values(sections)[0] || 'No overview available.');
-      }
+function buildPanelHTML(id, sections, days, currency) {
+  if (id === 'overview') {
+    const ovKey  = Object.keys(sections).find(k=>k.includes('Overview'))||'';
+    const acKey  = Object.keys(sections).find(k=>k.includes('Accommodation'))||'';
+    const fdKey  = Object.keys(sections).find(k=>k.includes('Food')||k.includes('Dishes'))||'';
+    let html = ovKey  ? `<h2>✈️ Overview</h2>${md(sections[ovKey])}` : '';
+    html    += acKey  ? `<h2>🏨 Where to Stay</h2>${md(sections[acKey])}` : '';
+    html    += fdKey  ? `<h2>🍽️ Must-Try Food</h2>${md(sections[fdKey])}` : '';
+    return html || md(Object.values(sections)[0]||'No overview available.');
+  }
 
-      if (id === 'budget') {
-        const bKey = Object.keys(sections).find(k => k.includes('Budget')) || '';
-        return bKey ? buildBudgetHTML(sections[bKey]) : '<p>No budget data.</p>';
-      }
+  if (id === 'budget') {
+    const bKey = Object.keys(sections).find(k=>k.includes('Budget'))||'';
+    return bKey ? buildBudgetHTML(sections[bKey]) : '<p>No budget data.</p>';
+  }
 
-      if (id === 'tips') {
-        const tKey = Object.keys(sections).find(k => k.includes('Practical') || k.includes('Tips')) || '';
-        return tKey ? buildTipsHTML(sections[tKey]) : '<p>No tips available.</p>';
-      }
+  if (id === 'tips') {
+    const tKey = Object.keys(sections).find(k=>k.includes('Practical')||k.includes('Tips'))||'';
+    return tKey ? buildTipsHTML(sections[tKey]) : '<p>No tips available.</p>';
+  }
 
-      // day panels
-      const dayNum = parseInt(id.replace('day', ''));
-      const dayKey = Object.keys(sections).find(k => k.includes('Day-by-Day') || k.includes('Itinerary')) || '';
-      const dayText = sections[dayKey] || '';
-      const dayMatch = [...dayText.matchAll(/###\s+Day\s+(\d+)[:\s]+(.+?)(?=###\s+Day\s+\d+|$)/gsi)].find(m => parseInt(m[1]) === dayNum);
-      return dayMatch ? buildDayHTML(dayMatch[0]) : '<p>No data for this day.</p>';
-    }
+  // day panels
+  const dayNum = parseInt(id.replace('day',''));
+  const dayKey = Object.keys(sections).find(k=>k.includes('Day-by-Day')||k.includes('Itinerary'))||'';
+  const dayText = sections[dayKey]||'';
+  const dayMatch = [...dayText.matchAll(/###\s+Day\s+(\d+)[:\s]+(.+?)(?=###\s+Day\s+\d+|$)/gsi)].find(m=>parseInt(m[1])===dayNum);
+  return dayMatch ? buildDayHTML(dayMatch[0]) : '<p>No data for this day.</p>';
+}
 
-    function buildDayHTML(text) {
-      const parts = { Morning: '', Afternoon: '', Evening: '', Tip: '' };
-      ['Morning', 'Afternoon', 'Evening', 'Tip'].forEach((p, i, arr) => {
-        const next = arr[i + 1];
-        const rx = new RegExp(`\\*\\*${p}[:\\*]*\\*?\\s*(.+?)(?=\\*\\*(?:${next || 'ZZEND'})|$)`, 'si');
-        const m = text.match(rx);
-        if (m) parts[p] = m[1].trim();
-      });
+function buildDayHTML(text) {
+  const parts = {Morning:'',Afternoon:'',Evening:'',Tip:''};
+  ['Morning','Afternoon','Evening','Tip'].forEach((p,i,arr) => {
+    const next = arr[i+1];
+    const rx = new RegExp(`\\*\\*${p}[:\\*]*\\*?\\s*(.+?)(?=\\*\\*(?:${next||'ZZEND'})|$)`,'si');
+    const m = text.match(rx);
+    if(m) parts[p] = m[1].trim();
+  });
 
-      const times = { Morning: '08:00', Afternoon: '13:00', Evening: '19:00' };
-      const hasSections = ['Morning', 'Afternoon', 'Evening'].some(p => parts[p]);
+  const times = {Morning:'08:00',Afternoon:'13:00',Evening:'19:00'};
+  const hasSections = ['Morning','Afternoon','Evening'].some(p=>parts[p]);
+  if (!hasSections) return `<div class="ic">${md(text)}</div>`;
 
-      if (!hasSections) return `<div class="ic">${md(text)}</div>`;
+  // unique prefix per render to avoid ID collisions across days
+  const uid = Math.random().toString(36).slice(2,7);
 
-      let html = '<div class="tl">';
-      ['Morning', 'Afternoon', 'Evening'].forEach(p => {
-        if (!parts[p]) return;
-        html += `<div class="tl-item">
-      <div class="tl-time">${times[p]}</div>
-      <div class="tl-line-wrap">
-        <div class="tl-dot"></div>
-        <div class="tl-vline"></div>
-        <div class="tl-label">${p}</div>
-        <div class="tl-text">${parts[p].replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</div>
+  let html = '<div class="tl">';
+  ['Morning','Afternoon','Evening'].forEach((p,idx) => {
+    if(!parts[p]) return;
+    const id = `${uid}-${idx}`;
+    const content = parts[p].replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+    html += `
+    <div class="tl-item" id="tli-${id}">
+      <!-- top row -->
+      <div class="tl-top">
+        <span class="tl-time">${times[p]}</span>
+        <span class="tl-dot"></span>
+        <span class="tl-label">${p}</span>
+        <!-- checkbox -->
+        <div class="tl-check" id="chk-${id}" onclick="toggleDone('${id}')" title="Mark as done"></div>
+        <!-- action buttons -->
+        <div class="tl-actions">
+          <button class="tl-btn" onclick="toggleComment('${id}')" title="Add note">💬</button>
+          <button class="tl-btn" onclick="toggleReplace('${id}','${p}')" title="Replace activity">🔄</button>
+          <button class="tl-btn del-btn" onclick="deleteActivity('${id}')" title="Delete">🗑️</button>
+        </div>
+      </div>
+      <!-- content -->
+      <div class="tl-body">
+        <div class="tl-text" id="txt-${id}">${content}</div>
         <span class="tl-tag">${p}</span>
       </div>
+      <!-- comment box -->
+      <div class="tl-comment-wrap" id="cmt-${id}">
+        <textarea class="tl-comment-input" placeholder="Add your note for this activity… e.g. 'prefer somewhere less touristy'" oninput="autoSaveComment('${id}',this.value)"></textarea>
+        <div class="tl-comment-saved" id="cmtsaved-${id}">✓ Note saved</div>
+      </div>
+      <!-- replace panel -->
+      <div class="tl-replace-wrap" id="rep-${id}">
+        <div class="tl-replace-label">🔄 Replace ${p} Activity</div>
+        <textarea class="tl-replace-input" id="repinput-${id}" placeholder="Describe what you'd prefer instead… e.g. 'something more relaxing, no crowds, preferably near a park'"></textarea>
+        <div class="tl-replace-btns">
+          <button class="btn-do-replace" id="repbtn-${id}" onclick="doReplace('${id}','${p}')">
+            <span>✦</span> Generate Replacement
+          </button>
+          <button class="btn-cancel-replace" onclick="toggleReplace('${id}','${p}')">Cancel</button>
+        </div>
+      </div>
     </div>`;
-      });
-      html += '</div>';
-      if (parts.Tip) html += `<div class="tip-box"><strong>💡 Local Tip</strong>${parts.Tip}</div>`;
-      return html;
-    }
+  });
+  html += '</div>';
+  if(parts.Tip) html += `<div class="tip-box"><strong>💡 Local Tip</strong>${parts.Tip}</div>`;
+  return html;
+}
 
-    function buildBudgetHTML(text) {
-      const tableMatch = text.match(/\|.+\|[\s\S]+/);
-      if (tableMatch) {
-        const rows = tableMatch[0].trim().split('\n')
-          .filter(r => r.includes('|') && !r.match(/^\|[-:\s|]+\|$/));
-        if (rows.length > 1) {
-          const headers = rows[0].split('|').map(h => h.trim()).filter(Boolean);
-          let html = '<table class="btable"><thead><tr>';
-          headers.forEach(h => { html += `<th>${h}</th>`; });
-          html += '</tr></thead><tbody>';
-          rows.slice(1).forEach(row => {
-            const cells = row.split('|').map(c => c.trim()).filter(Boolean);
-            if (!cells.length) return;
-            html += '<tr>';
-            cells.forEach((c, i) => {
-              html += `<td${i > 0 ? ' class="amt"' : ''}>${c.replace(/\*\*/g, '')}</td>`;
-            });
-            html += '</tr>';
-          });
-          html += '</tbody></table>';
-          const before = text.slice(0, text.indexOf('|')).trim();
-          return (before ? `<p>${before}</p>` : '') + html;
-        }
-      }
-      return md(text);
-    }
+// ── ACTIVITY INTERACTIONS ─────────────────────────────────────────────────
 
-    function buildTipsHTML(text) {
-      const items = [...text.matchAll(/^[-*•\d.]+\s*(.+)$/gm)].map(m => m[1].trim());
-      if (items.length >= 3) {
-        const labels = ['Transport', 'Currency', 'Language', 'Safety', 'Packing', 'Etiquette', 'Tip', 'Note'];
-        let html = '<div class="tips-grid">';
-        items.slice(0, 8).forEach((item, i) => {
-          const ci = item.indexOf(':');
-          const bold = ci > 0 && ci < 30 ? item.slice(0, ci) : (labels[i] || 'Tip');
-          const body = ci > 0 && ci < 30 ? item.slice(ci + 1).trim() : item;
-          html += `<div class="tip-card"><strong>${bold.replace(/\*\*/g, '')}</strong>${body}</div>`;
+function toggleDone(id) {
+  const item = document.getElementById(`tli-${id}`);
+  const chk  = document.getElementById(`chk-${id}`);
+  const done = item.classList.toggle('done');
+  chk.classList.toggle('checked', done);
+  chk.textContent = done ? '✓' : '';
+  toast(done ? '✅ Marked as done' : 'Unmarked');
+}
+
+function deleteActivity(id) {
+  const item = document.getElementById(`tli-${id}`);
+  item.style.transition = 'opacity .3s, max-height .3s';
+  item.style.opacity = '0';
+  item.style.maxHeight = '0';
+  item.style.overflow = 'hidden';
+  setTimeout(() => item.classList.add('deleted'), 320);
+  toast('🗑️ Activity removed');
+}
+
+function toggleComment(id) {
+  const wrap = document.getElementById(`cmt-${id}`);
+  wrap.classList.toggle('show');
+  if(wrap.classList.contains('show')) {
+    wrap.querySelector('textarea').focus();
+  }
+}
+
+let commentTimers = {};
+function autoSaveComment(id, val) {
+  clearTimeout(commentTimers[id]);
+  commentTimers[id] = setTimeout(() => {
+    const saved = document.getElementById(`cmtsaved-${id}`);
+    saved.classList.add('show');
+    setTimeout(() => saved.classList.remove('show'), 2000);
+  }, 800);
+}
+
+function toggleReplace(id, period) {
+  const wrap = document.getElementById(`rep-${id}`);
+  wrap.classList.toggle('show');
+  if(wrap.classList.contains('show')) {
+    document.getElementById(`repinput-${id}`).focus();
+  }
+}
+
+async function doReplace(id, period) {
+  const inputEl = document.getElementById(`repinput-${id}`);
+  const btn     = document.getElementById(`repbtn-${id}`);
+  const textEl  = document.getElementById(`txt-${id}`);
+  const pref    = inputEl.value.trim();
+
+  const dest  = currentMeta.dest  || 'the destination';
+  const style = currentMeta.style || 'balanced';
+  const curr  = currentMeta.currency || 'MYR';
+
+  const prompt = `You are a travel planner. Suggest ONE alternative ${period} activity for a trip to ${dest}.
+Travel style: ${style}. Budget currency: ${curr}.
+${pref ? `Traveller preference: ${pref}` : ''}
+Reply with ONLY 2-3 sentences describing the specific alternative activity with real venue names. No intro, no list, just the activity description.`;
+
+  btn.classList.add('loading');
+  btn.innerHTML = '<span style="animation:spin .6s linear infinite;display:inline-block">⟳</span> Generating…';
+
+  try {
+    const result = await callWorker(prompt);
+    // animate text swap
+    textEl.style.transition = 'opacity .25s';
+    textEl.style.opacity = '0';
+    setTimeout(() => {
+      textEl.innerHTML = result.trim();
+      textEl.style.opacity = '1';
+    }, 260);
+    // close replace panel
+    document.getElementById(`rep-${id}`).classList.remove('show');
+    inputEl.value = '';
+    toast('✨ Activity replaced!');
+  } catch(err) {
+    toast('❌ Failed: ' + (err.message||'Try again'));
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = '<span>✦</span> Generate Replacement';
+  }
+}
+
+function buildBudgetHTML(text) {
+  const tableMatch = text.match(/\|.+\|[\s\S]+/);
+  if(tableMatch) {
+    const rows = tableMatch[0].trim().split('\n')
+      .filter(r=>r.includes('|') && !r.match(/^\|[-:\s|]+\|$/));
+    if(rows.length > 1) {
+      const headers = rows[0].split('|').map(h=>h.trim()).filter(Boolean);
+      let html = '<table class="btable"><thead><tr>';
+      headers.forEach(h => { html+=`<th>${h}</th>`; });
+      html += '</tr></thead><tbody>';
+      rows.slice(1).forEach(row => {
+        const cells = row.split('|').map(c=>c.trim()).filter(Boolean);
+        if(!cells.length) return;
+        html += '<tr>';
+        cells.forEach((c,i) => {
+          html += `<td${i>0?' class="amt"':''}>${c.replace(/\*\*/g,'')}</td>`;
         });
-        html += '</div>';
-        return html;
-      }
-      return md(text);
-    }
-
-    // minimal markdown renderer
-    function md(text) {
-      if (!text) return '';
-      return '<p>' + text
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/^###\s+(.+)$/gm, '</p><h3>$1</h3><p>')
-        .replace(/^##\s+(.+)$/gm, '</p><h2>$1</h2><p>')
-        .replace(/^[-*]\s+(.+)$/gm, '</p><li>$1</li><p>')
-        .replace(/\n{2,}/g, '</p><p>')
-        .replace(/<p><\/p>/g, '')
-        + '</p>';
-    }
-
-    // ══════════════════════════════════════════════════════
-    //  SAVE / LOAD ITINERARIES
-    // ══════════════════════════════════════════════════════
-    function getSaved() {
-      try { return JSON.parse(localStorage.getItem('vt_saved') || '[]'); } catch { return []; }
-    }
-    function putSaved(arr) {
-      localStorage.setItem('vt_saved', JSON.stringify(arr));
-      updateSavedDot();
-    }
-    function updateSavedDot() {
-      const n = getSaved().length;
-      document.getElementById('savedDot').classList.toggle('show', n > 0);
-    }
-
-    function saveItinerary() {
-      if (!currentRaw) return;
-      const saved = getSaved();
-      const id = Date.now().toString(36);
-      saved.unshift({
-        id,
-        title: `${currentMeta.days}-Day ${currentMeta.dest}`,
-        meta: currentMeta,
-        raw: currentRaw,
-        date: new Date().toLocaleDateString('en-MY', { year: 'numeric', month: 'short', day: 'numeric' })
+        html += '</tr>';
       });
-      if (saved.length > 50) saved.pop(); // cap at 50
-      putSaved(saved);
-      toast('✅ Itinerary saved!');
+      html += '</tbody></table>';
+      const before = text.slice(0, text.indexOf('|')).trim();
+      return (before?`<p>${before}</p>`:'') + html;
     }
+  }
+  return md(text);
+}
 
-    function renderSavedList() {
-      const list = document.getElementById('savedList');
-      const saved = getSaved();
-      if (!saved.length) {
-        list.innerHTML = `<div class="saved-empty">
+function buildTipsHTML(text) {
+  const items = [...text.matchAll(/^[-*•\d.]+\s*(.+)$/gm)].map(m=>m[1].trim());
+  if(items.length >= 3) {
+    const labels = ['Transport','Currency','Language','Safety','Packing','Etiquette','Tip','Note'];
+    let html = '<div class="tips-grid">';
+    items.slice(0,8).forEach((item,i) => {
+      const ci = item.indexOf(':');
+      const bold = ci>0&&ci<30 ? item.slice(0,ci) : (labels[i]||'Tip');
+      const body = ci>0&&ci<30 ? item.slice(ci+1).trim() : item;
+      html += `<div class="tip-card"><strong>${bold.replace(/\*\*/g,'')}</strong>${body}</div>`;
+    });
+    html += '</div>';
+    return html;
+  }
+  return md(text);
+}
+
+// minimal markdown renderer
+function md(text) {
+  if(!text) return '';
+  return '<p>' + text
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^###\s+(.+)$/gm,'</p><h3>$1</h3><p>')
+    .replace(/^##\s+(.+)$/gm,'</p><h2>$1</h2><p>')
+    .replace(/^[-*]\s+(.+)$/gm,'</p><li>$1</li><p>')
+    .replace(/\n{2,}/g,'</p><p>')
+    .replace(/<p><\/p>/g,'')
+    + '</p>';
+}
+
+// ══════════════════════════════════════════════════════
+//  SAVE / LOAD ITINERARIES
+// ══════════════════════════════════════════════════════
+function getSaved() {
+  try { return JSON.parse(localStorage.getItem('vt_saved')||'[]'); } catch{ return []; }
+}
+function putSaved(arr) {
+  localStorage.setItem('vt_saved', JSON.stringify(arr));
+  updateSavedDot();
+}
+function updateSavedDot() {
+  const n = getSaved().length;
+  document.getElementById('savedDot').classList.toggle('show', n>0);
+}
+
+function saveItinerary() {
+  if(!currentRaw) return;
+  const saved = getSaved();
+  const id = Date.now().toString(36);
+  saved.unshift({
+    id,
+    title: `${currentMeta.days}-Day ${currentMeta.dest}`,
+    meta:  currentMeta,
+    raw:   currentRaw,
+    date:  new Date().toLocaleDateString('en-MY',{year:'numeric',month:'short',day:'numeric'})
+  });
+  if(saved.length > 50) saved.pop(); // cap at 50
+  putSaved(saved);
+  toast('✅ Itinerary saved!');
+}
+
+function renderSavedList() {
+  const list = document.getElementById('savedList');
+  const saved = getSaved();
+  if(!saved.length) {
+    list.innerHTML = `<div class="saved-empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
       No saved trips yet.<br>Generate an itinerary and tap 💾 to save it.
     </div>`;
-        return;
-      }
-      list.innerHTML = saved.map(s => `
+    return;
+  }
+  list.innerHTML = saved.map(s => `
     <div class="saved-card" onclick="loadSaved('${s.id}')">
       <div class="sc-title">${s.title}</div>
       <div class="sc-meta">
-        ${[s.meta.style, s.meta.travellers, s.meta.currency].map(v => `<span class="sc-pill">${v}</span>`).join('')}
+        ${[s.meta.style, s.meta.travellers, s.meta.currency].map(v=>`<span class="sc-pill">${v}</span>`).join('')}
       </div>
       <div class="sc-date">${s.date}</div>
       <div class="sc-actions" onclick="event.stopPropagation()">
@@ -1984,94 +1444,93 @@ Use real venue/restaurant names. All content in English. Be specific and genuine
       </div>
     </div>
   `).join('');
-    }
+}
 
-    function loadSaved(id) {
-      const item = getSaved().find(s => s.id === id);
-      if (!item) return;
-      currentRaw = item.raw;
-      currentMeta = item.meta;
-      renderResult(item.raw, item.meta);
-      switchPage('result');
-    }
+function loadSaved(id) {
+  const item = getSaved().find(s=>s.id===id);
+  if(!item) return;
+  currentRaw  = item.raw;
+  currentMeta = item.meta;
+  renderResult(item.raw, item.meta);
+  switchPage('result');
+}
 
-    function deleteSaved(id) {
-      const arr = getSaved().filter(s => s.id !== id);
-      putSaved(arr);
-      renderSavedList();
-      toast('🗑️ Deleted');
-    }
+function deleteSaved(id) {
+  const arr = getSaved().filter(s=>s.id!==id);
+  putSaved(arr);
+  renderSavedList();
+  toast('🗑️ Deleted');
+}
 
-    // ══════════════════════════════════════════════════════
-    //  SHARE
-    // ══════════════════════════════════════════════════════
-    function buildShareUrl() {
-      const base = 'https://neilson2005.github.io/travelai/';
-      const params = new URLSearchParams({
-        dest: currentMeta.dest || '',
-        days: currentMeta.days || '5',
-        style: currentMeta.style || '',
-      });
-      return base + '?' + params.toString();
-    }
+// ══════════════════════════════════════════════════════
+//  SHARE
+// ══════════════════════════════════════════════════════
+function buildShareUrl() {
+  const base = 'https://neilson2005.github.io/travelai/';
+  const params = new URLSearchParams({
+    dest:  currentMeta.dest||'',
+    days:  currentMeta.days||'5',
+    style: currentMeta.style||'',
+  });
+  return base + '?' + params.toString();
+}
 
-    function openShare() {
-      if (!currentRaw) return;
-      const url = buildShareUrl();
-      document.getElementById('shareUrl').value = url;
-      document.getElementById('shareSheet').classList.add('show');
-    }
+function openShare() {
+  if(!currentRaw) return;
+  const url = buildShareUrl();
+  document.getElementById('shareUrl').value = url;
+  document.getElementById('shareSheet').classList.add('show');
+}
 
-    function openShareSaved(id) {
-      const item = getSaved().find(s => s.id === id);
-      if (!item) return;
-      currentMeta = item.meta;
-      currentRaw = item.raw;
-      openShare();
-    }
+function openShareSaved(id) {
+  const item = getSaved().find(s=>s.id===id);
+  if(!item) return;
+  currentMeta = item.meta;
+  currentRaw  = item.raw;
+  openShare();
+}
 
-    function closeShare(e) {
-      if (!e || e.target === document.getElementById('shareSheet')) {
-        document.getElementById('shareSheet').classList.remove('show');
-      }
-    }
+function closeShare(e) {
+  if(!e || e.target===document.getElementById('shareSheet')) {
+    document.getElementById('shareSheet').classList.remove('show');
+  }
+}
 
-    async function shareVia(method) {
-      const url = buildShareUrl();
-      const title = `My ${currentMeta.days}-Day ${currentMeta.dest} Trip — Vibe Travel`;
-      const text = `Check out my AI-planned trip to ${currentMeta.dest}!\n\n${url}`;
+async function shareVia(method) {
+  const url  = buildShareUrl();
+  const title = `My ${currentMeta.days}-Day ${currentMeta.dest} Trip — Vibe Travel`;
+  const text  = `Check out my AI-planned trip to ${currentMeta.dest}!\n\n${url}`;
 
-      if (method === 'native' && navigator.share) {
-        try { await navigator.share({ title, text, url }); } catch { }
-        closeShare();
-        return;
-      }
-      if (method === 'whatsapp') {
-        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-        closeShare(); return;
-      }
-      if (method === 'copy') {
-        await navigator.clipboard.writeText(url).catch(() => { });
-        toast('🔗 Link copied!'); closeShare(); return;
-      }
-      if (method === 'text') {
-        await navigator.clipboard.writeText(currentRaw).catch(() => { });
-        toast('📋 Text copied!'); closeShare(); return;
-      }
-    }
+  if(method==='native' && navigator.share) {
+    try { await navigator.share({ title, text, url }); } catch{}
+    closeShare();
+    return;
+  }
+  if(method==='whatsapp') {
+    window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+    closeShare(); return;
+  }
+  if(method==='copy') {
+    await navigator.clipboard.writeText(url).catch(()=>{});
+    toast('🔗 Link copied!'); closeShare(); return;
+  }
+  if(method==='text') {
+    await navigator.clipboard.writeText(currentRaw).catch(()=>{});
+    toast('📋 Text copied!'); closeShare(); return;
+  }
+}
 
-    async function copyRaw() {
-      if (!currentRaw) return;
-      await navigator.clipboard.writeText(currentRaw).catch(() => { });
-      toast('📋 Copied to clipboard!');
-    }
+async function copyRaw() {
+  if(!currentRaw) return;
+  await navigator.clipboard.writeText(currentRaw).catch(()=>{});
+  toast('📋 Copied to clipboard!');
+}
 
-    // ══════════════════════════════════════════════════════
-    //  INIT
-    // ══════════════════════════════════════════════════════
-    updateSavedDot();
-  </script>
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+updateSavedDot();
+</script>
 
 </body>
-
 </html>
